@@ -18,7 +18,7 @@ PROPERTIES window_size : NAT &
            BYTE = 0..255 &
            BYTE_STRINGS = seq(BYTE) &
            REFERENCES = {Ref} * (1..window_size) * (1..lookahead_buffer_size) * { {0 |-> 0} } &
-           LITERALS = {Lit} * {0} * {0} * BYTE_STRINGS &
+           LITERALS = {Lit} * {0} * {0} * (BYTE_STRINGS - {<>}) &
            ATOMS = REFERENCES \/ LITERALS &
            ABSTRACT_STRINGS = seq(ATOMS) &
            MAYBE_STRINGS = struct(RESULT:BYTE_STRINGS, ERROR:BOOL)
