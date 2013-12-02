@@ -16,7 +16,12 @@ INVARIANT retrieved_input:            BYTE_STRINGS &
           noncompressed_input_buffer: BYTE_STRINGS &
           compressed_input_buffer:    BYTE_STRINGS &
           written:                ABSTRACT_STRINGS &
-          output_buffer:          ABSTRACT_STRINGS
+          output_buffer:          ABSTRACT_STRINGS &
+          
+          (decomp(written ^ output_buffer))'RESULT = retrieved_input ^ compressed_input_buffer &
+          (decomp(written ^ output_buffer))'ERROR  = FALSE &
+          (decomp(written))'RESULT = retrieved_input &
+          (decomp(written))'ERROR  = FALSE
           
 INITIALISATION retrieved_input := <> 
                || noncompressed_input_buffer := <>
@@ -29,10 +34,11 @@ OPERATIONS
        THEN
            CHOICE noncompressed_input_buffer := noncompressed_input_buffer <- bb
            OR ANY s1,s2,aa 
-               WHERE s1: BYTE_STRINGS & s2: BYTE_STRINGS & aa: ATOMS &
-                     s1 ^ s2 = noncompressed_input_buffer <- bb &
-                     decomp(written ^ output_buffer <- aa) = 
-                            rec(RESULT: retrieved_input ^ compressed_input_buffer ^ s1, ERROR: FALSE)
+              WHERE s1: BYTE_STRINGS & s2: BYTE_STRINGS & aa: ATOMS &
+                    s1 ^ s2 = noncompressed_input_buffer <- bb &
+                    (decomp(written ^ output_buffer <- aa))'RESULT = 
+                            retrieved_input ^ compressed_input_buffer ^ s1 &
+                    (decomp(written ^ output_buffer <- aa))'ERROR  = FALSE
               THEN noncompressed_input_buffer := s2
                   || compressed_input_buffer := compressed_input_buffer ^ s1
                   || output_buffer := output_buffer <- aa
@@ -46,8 +52,8 @@ OPERATIONS
            ANY s1,s2
            WHERE s1: BYTE_STRINGS & s2: BYTE_STRINGS &
                  s1 ^ s2 = compressed_input_buffer &
-                 s1 = (decomp_atom(first(output_buffer), retrieved_input))'RESULT &
-                 (decomp_atom(first(output_buffer), retrieved_input))'ERROR = FALSE
+                 (decomp_atom(first(output_buffer), retrieved_input))'RESULT = s1 &
+                 (decomp_atom(first(output_buffer), retrieved_input))'ERROR  = FALSE
            THEN
              aa := first(output_buffer)
              || output_buffer := tail(output_buffer)
