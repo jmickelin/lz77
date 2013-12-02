@@ -15,8 +15,9 @@ VARIABLES input,
 INVARIANT input: ABSTRACT_STRINGS &
           output_buffer: BYTE_STRINGS &
           written: BYTE_STRINGS &
-          error_occurred: BOOL
-          /* and more! */
+          error_occurred: BOOL &
+          (decomp(input))'RESULT = written ^ output_buffer &
+          (decomp(input))'ERROR = error_occurred
 
 INITIALISATION input := <> || output_buffer := <> || written := <> || error_occurred := FALSE
     
