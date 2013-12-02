@@ -34,12 +34,7 @@ OPERATIONS
              || error_occurred := ms'ERROR
            END
         END;
-    tt <-- ready = IF output_buffer = <> 
-                   THEN
-                       tt := FALSE
-                   ELSE
-                        tt := TRUE
-                   END;
+    tt <-- ready = tt := bool(output_buffer /= <>);
     tt <-- error_status = tt := error_occurred;                           
     bb <-- read_byte = PRE output_buffer /= <>
                        THEN
