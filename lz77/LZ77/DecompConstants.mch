@@ -44,5 +44,10 @@ PROPERTIES
              }
 ASSERTIONS
     decomp_atom : ATOMS * BYTE_STRINGS --> MAYBE_STRINGS &
-    decomp : ABSTRACT_STRINGS --> MAYBE_STRINGS
+    decomp : ABSTRACT_STRINGS --> MAYBE_STRINGS &
+    decomp(<>) = rec(RESULT:<>, ERROR: FALSE) &
+    !as.(as:ABSTRACT_STRINGS - {<>} 
+        => (decomp(as))'RESULT = (decomp(front(as)))'RESULT ^ 
+                                       (decomp_atom(last(as),     
+                                                    (decomp(front(as)))'RESULT))'RESULT)
 END
