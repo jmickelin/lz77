@@ -12,13 +12,28 @@ ABSTRACT_CONSTANTS REFERENCES,
           ABSTRACT_STRINGS,
           window_size,
           lookahead_buffer_size,
-          MAYBE_STRINGS
+          MAYBE_STRINGS,
+          ATOM_UNIVERSE
 PROPERTIES window_size : NAT &
            lookahead_buffer_size : NAT &
            BYTE = 0..255 &
            BYTE_STRINGS = seq(BYTE) &
-           REFERENCES = {Ref} * (1..window_size) * (1..lookahead_buffer_size) * { {1 |-> 0} } &
-           LITERALS = {Lit} * {0} * {0} * (BYTE_STRINGS - {<>}) &
+           ATOM_UNIVERSE = struct(TAG:TAGS, 
+                                  POINTER:NAT, 
+                                  LENGTH:NAT, 
+                                  QUOTE:BYTE_STRINGS) &
+           REFERENCES = { aa | aa:ATOM_UNIVERSE &
+                               aa'TAG = Ref &
+                               aa'POINTER: (1..window_size) & 
+                               aa'LENGTH: (1..lookahead_buffer_size) &
+                               aa'QUOTE = <>
+                        } &
+           LITERALS = { aa | aa:ATOM_UNIVERSE &
+                               aa'TAG = Lit &
+                               aa'POINTER = 0 & 
+                               aa'LENGTH = 0 &
+                               aa'QUOTE /= <>
+                      } &
            ATOMS = REFERENCES \/ LITERALS &
            ABSTRACT_STRINGS = seq(ATOMS) &
            MAYBE_STRINGS = struct(RESULT:BYTE_STRINGS, ERROR:BOOL)

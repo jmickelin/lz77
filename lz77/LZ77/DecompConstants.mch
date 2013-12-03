@@ -9,28 +9,21 @@ SEES Strings
 ABSTRACT_CONSTANTS decomp, decomp_atom
 PROPERTIES
     decomp_atom : ATOMS * BYTE_STRINGS <-> MAYBE_STRINGS &
-    decomp_atom = 
-        { aa,buf,ms | 
-                      aa : ATOMS &
-                      buf : BYTE_STRINGS &
-                      ms : MAYBE_STRINGS &
-                      ! litstr . (litstr : BYTE_STRINGS =>
-                                  (aa = (Lit, 0, 0, litstr) => ms = rec(RESULT:litstr, 
-                                                                        ERROR:FALSE))) &
-                      ! (pp,ll) . (pp : NAT &
-                                   ll : NAT =>
-                                   ((aa = (Ref, pp, ll, {1 |-> 0})) => 
-                                        (pp < size(buf) 
-                                            => ms = rec(RESULT:%nn . (nn : 1..ll | 
-                                                              buf(size(buf) - pp + ((nn - 1) mod pp))),
-                                                        ERROR:FALSE)) &
-                                        /* To make this a total function, we replace erroneous back-references
-                                           with the empty string.
-                                        */
-                                        (pp >= size(buf)
-                                            => ms = rec(RESULT:<>, 
-                                                        ERROR:TRUE))))
-        } &
+    decomp_atom = % (aa,buf) . (aa: LITERALS & buf: BYTE_STRINGS |
+                                rec(RESULT: aa'QUOTE,
+                                    ERROR: FALSE))
+                  \/
+                  % (aa,buf) . (aa: REFERENCES & buf: BYTE_STRINGS & aa'POINTER < size(buf) |
+                                rec(RESULT:%nn . (nn : 1..(aa'LENGTH) | 
+                                                  buf(size(buf) - (aa'POINTER) + ((nn - 1) mod (aa'POINTER)))),
+                                    ERROR: FALSE))
+                  \/
+                  /* To make this a total function, we replace erroneous back-references
+                     with the empty string.
+                  */
+                  % (aa,buf) . (aa: REFERENCES & buf: BYTE_STRINGS & aa'POINTER >= size(buf) |
+                                rec(RESULT: <>,
+                                    ERROR: TRUE)) &
     decomp : ABSTRACT_STRINGS <-> MAYBE_STRINGS &
     decomp = { as,ms | as :ABSTRACT_STRINGS & 
                        ms : MAYBE_STRINGS &
