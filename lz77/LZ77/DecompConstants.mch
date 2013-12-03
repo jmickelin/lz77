@@ -19,10 +19,10 @@ PROPERTIES
                                                                         ERROR:FALSE))) &
                       # (pp,ll) . (pp : NAT &
                                    ll : NAT &
-                                   (aa = (Ref, pp, ll, {0 |-> 0}) => 
+                                   (aa = (Ref, pp, ll, {1 |-> 0})) => 
                                        (pp < size(buf) 
-                                           => ms = rec(RESULT:%nn . (nn : 0..(ll-1) | 
-                                                             buf(size(buf) - pp + (nn mod pp))),
+                                           => ms = rec(RESULT:%nn . (nn : 1..ll | 
+                                                             buf(size(buf) - pp + ((nn - 1) mod pp))),
                                                        ERROR:FALSE)) &
                                        /* To make this a total function, we replace erroneous back-references
                                           with the empty string.
