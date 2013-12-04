@@ -8,7 +8,7 @@ SEES Strings
 
 ABSTRACT_CONSTANTS decomp, decomp_atom
 PROPERTIES
-    decomp_atom : ATOMS * BYTE_STRINGS <-> MAYBE_STRINGS &
+    decomp_atom : ATOMS * BYTE_STRINGS --> MAYBE_STRINGS &
     decomp_atom = % (aa,buf) . (aa: LITERALS & buf: BYTE_STRINGS |
                                 rec(RESULT: aa'QUOTE,
                                     ERROR: FALSE))
