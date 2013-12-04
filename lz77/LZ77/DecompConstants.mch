@@ -15,7 +15,7 @@ PROPERTIES
                   \/
                   % (aa,buf) . (aa: REFERENCES & buf: BYTE_STRINGS & aa'POINTER < size(buf) |
                                 rec(RESULT:%nn . (nn : 1..(aa'LENGTH) | 
-                                                  buf(size(buf) - (aa'POINTER) + ((nn - 1) mod (aa'POINTER)))),
+                                                  buf(size(buf) + 1 - (aa'POINTER) + ((nn - 1) mod (aa'POINTER)))),
                                     ERROR: FALSE))
                   \/
                   /* To make this a total function, we replace erroneous back-references
