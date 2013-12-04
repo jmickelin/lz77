@@ -5,61 +5,49 @@
 MACHINE Compressor
 SEES Strings, DecompConstants
     
-VARIABLES retrieved_input, /* The input string whose corresponding compressed string has been retrieved from the machine */
-          noncompressed_input_buffer,  /* The input that is waiting to be processed */
-          compressed_input_buffer,    /* The input that is processed but whose corresponding compressed string has not been retrieved */
-          /* All input is retrieved_compressed_input ^ compressed_input_buffer ^ uncompressed_input_buffer */
-          written,                    /* The compressed data that has been retrieved from the machine */
-          output_buffer               /* The compressed data waiting to be retrieved from the machine */
+VARIABLES input,
+          output,
+          written_index,
+          is_ready
 
-INVARIANT retrieved_input:            BYTE_STRINGS &
-          noncompressed_input_buffer: BYTE_STRINGS &
-          compressed_input_buffer:    BYTE_STRINGS &
-          written:                ABSTRACT_STRINGS &
-          output_buffer:          ABSTRACT_STRINGS &
+INVARIANT input:            BYTE_STRINGS &
+          output:           ABSTRACT_STRINGS &
+          written_index:    NATURAL &
+          is_ready:         BOOL &
           
-          (decomp(written ^ output_buffer))'RESULT = retrieved_input ^ compressed_input_buffer &
-          (decomp(written ^ output_buffer))'ERROR  = FALSE &
-          (decomp(written))'RESULT = retrieved_input &
-          (decomp(written))'ERROR  = FALSE
+          (decomp(output))'RESULT = input &
+          (decomp(output))'ERROR  = FALSE &
+          (is_ready = TRUE => written_index < size(output))
           
-INITIALISATION retrieved_input := <> 
-               || noncompressed_input_buffer := <>
-               || compressed_input_buffer := <>
-               || written := <>
-               || output_buffer := <>
+INITIALISATION input := <> 
+               || output := <>
+               || written_index := 0
+               || is_ready := FALSE
 OPERATIONS
     put_byte(bb) = 
        PRE bb:BYTE
        THEN
-           CHOICE noncompressed_input_buffer := noncompressed_input_buffer <- bb
-           OR ANY s1,s2,aa 
-              WHERE s1: BYTE_STRINGS & s2: BYTE_STRINGS & aa: ATOMS &
-                    s1 ^ s2 = noncompressed_input_buffer <- bb &
-                    (decomp(written ^ output_buffer <- aa))'RESULT = 
-                            retrieved_input ^ compressed_input_buffer ^ s1 &
-                    (decomp(written ^ output_buffer <- aa))'ERROR  = FALSE
-              THEN noncompressed_input_buffer := s2
-                  || compressed_input_buffer := compressed_input_buffer ^ s1
-                  || output_buffer := output_buffer <- aa
+           input := input <- bb
+           || ANY as,tt WHERE as: ABSTRACT_STRINGS &
+                              tt: BOOL &
+                              (decomp(as))'RESULT = input <- bb &
+                              (decomp(as))'ERROR = FALSE &
+                              as /|\ written_index = output /|\ written_index &
+                              (tt = TRUE => written_index < size(as))
+              THEN output := as
+                  || is_ready := tt
               END
-           END
        END;
-    tt <-- ready = tt := bool(output_buffer /= <>);
+    tt <-- ready = tt := is_ready;
     aa <-- read_atom =
-       PRE output_buffer /= <>
-       THEN 
-           ANY s1,s2
-           WHERE s1: BYTE_STRINGS & s2: BYTE_STRINGS &
-                 s1 ^ s2 = compressed_input_buffer &
-                 (decomp_atom(first(output_buffer), retrieved_input))'RESULT = s1 &
-                 (decomp_atom(first(output_buffer), retrieved_input))'ERROR  = FALSE
-           THEN
-             aa := first(output_buffer)
-             || output_buffer := tail(output_buffer)
-             || written := written <- first(output_buffer)
-             || retrieved_input := retrieved_input ^ s1
-             || compressed_input_buffer := s2
-           END
+       PRE is_ready = TRUE
+       THEN
+           aa := output(written_index + 1)
+           || written_index := written_index + 1
+           || ANY tt WHERE tt: BOOL &
+                           (tt = TRUE => written_index + 1 < size(output))
+              THEN 
+                 is_ready := tt
+              END
        END
 END
