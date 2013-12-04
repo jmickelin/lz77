@@ -29,10 +29,10 @@ PROPERTIES window_size : NAT &
                                aa'QUOTE = <>
                         } &
            LITERALS = { aa | aa:ATOM_UNIVERSE &
-                               aa'TAG = Lit &
-                               aa'POINTER = 0 & 
-                               aa'LENGTH = 0 &
-                               aa'QUOTE /= <>
+                             aa'TAG = Lit &
+                             aa'POINTER = 0 & 
+                             aa'LENGTH = 0 &
+                             aa'QUOTE /= <>
                       } &
            ATOMS = REFERENCES \/ LITERALS &
            ABSTRACT_STRINGS = seq(ATOMS) &
