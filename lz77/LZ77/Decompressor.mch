@@ -22,16 +22,23 @@ INVARIANT input: ABSTRACT_STRINGS &
 INITIALISATION input := <> || written_index := 0 || output := <> || error_occurred := FALSE
     
 OPERATIONS
-    put_atom(aa) = 
-        PRE aa: ATOMS
+    put_atom(tag,pp,ll,qq) = 
+        PRE tag:TAGS &
+            pp: NAT &
+            ll: NAT &
+            qq: 0..max_quote_length --> BYTE &
+            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS
         THEN
-           ANY ms WHERE ms: MAYBE_STRINGS & 
-                        ms = decomp_atom(aa, output)
-           THEN
-             input := input <- aa
-             || output := output ^ ms'RESULT
-             || error_occurred := bool(error_occurred = TRUE or ms'ERROR = TRUE)
-           END
+            LET aa BE aa = rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq)
+            IN
+                ANY ms WHERE ms: MAYBE_STRINGS & 
+                             ms = decomp_atom(aa, output)
+                THEN
+                    input := input <- aa
+                   || output := output ^ ms'RESULT
+                   || error_occurred := bool(error_occurred = TRUE or ms'ERROR = TRUE)
+                END
+            END
         END;
     tt <-- ready = tt := bool(written_index < size(output));
     tt <-- error_status = tt := error_occurred;                           

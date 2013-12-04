@@ -39,10 +39,12 @@ OPERATIONS
               END
        END;
     tt <-- ready = tt := is_ready;
-    aa <-- read_atom =
+    tag,pp,ll,qq <-- read_atom =
        PRE is_ready = TRUE
        THEN
-           aa := output(written_index + 1)
+           LET aa BE aa = output(written_index + 1)
+           IN tag,pp,ll,qq := aa'TAG,aa'POINTER,aa'LENGTH,aa'QUOTE
+           END
            || written_index := written_index + 1
            || ANY tt WHERE tt: BOOL &
                            (tt = TRUE => written_index + 1 < size(output))
