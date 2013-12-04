@@ -8,39 +8,36 @@ SEES DecompConstants,
      Strings
 
 VARIABLES input,
-          output_buffer,
-          written,
+          written_index,
+          output,
           error_occurred
 
 INVARIANT input: ABSTRACT_STRINGS &
-          output_buffer: BYTE_STRINGS &
-          written: BYTE_STRINGS &
+          output: BYTE_STRINGS &
+          written_index: NATURAL &
           error_occurred: BOOL &
-          (decomp(input))'RESULT = written ^ output_buffer &
+          (decomp(input))'RESULT = output &
           (decomp(input))'ERROR = error_occurred
 
-INITIALISATION input := <> || output_buffer := <> || written := <> || error_occurred := FALSE
+INITIALISATION input := <> || written_index := 0 || output := <> || error_occurred := FALSE
     
 OPERATIONS
     put_atom(aa) = 
         PRE aa: ATOMS
         THEN
            ANY ms WHERE ms: MAYBE_STRINGS & 
-                        ms = decomp_atom(aa, written^output_buffer)
-                        /* Optionally, require ms'ERROR = FALSE in precondition.
-                           We'll decide later. */
+                        ms = decomp_atom(aa, output)
            THEN
-             input := input <- aa 
-             || output_buffer := output_buffer ^ ms'RESULT
-             || error_occurred := ms'ERROR
+             input := input <- aa
+             || output := output ^ ms'RESULT
+             || error_occurred := bool(error_occurred = TRUE or ms'ERROR = TRUE)
            END
         END;
-    tt <-- ready = tt := bool(output_buffer /= <>);
+    tt <-- ready = tt := bool(written_index < size(output));
     tt <-- error_status = tt := error_occurred;                           
-    bb <-- read_byte = PRE output_buffer /= <>
+    bb <-- read_byte = PRE written_index < size(output)
                        THEN
-                           bb := first(output_buffer)
-                           || output_buffer := tail(output_buffer)
-                           || written := written <- first(output_buffer)
+                           bb := output(written_index + 1)
+                           || written_index := written_index + 1
                        END
 END 
