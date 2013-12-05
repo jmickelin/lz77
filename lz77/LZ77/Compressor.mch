@@ -17,6 +17,7 @@ INVARIANT input:            BYTE_STRINGS &
           
           (decomp(output))'RESULT = input &
           (decomp(output))'ERROR  = FALSE &
+          written_index <= size(output) &
           (is_ready = TRUE => written_index < size(output))
           
 INITIALISATION input := <> 
@@ -32,6 +33,7 @@ OPERATIONS
                               tt: BOOL &
                               (decomp(as))'RESULT = input <- bb &
                               (decomp(as))'ERROR = FALSE &
+                              written_index <= size(as) & /* This is implied by the next line */
                               as /|\ written_index = output /|\ written_index &
                               (tt = TRUE => written_index < size(as))
               THEN output := as

@@ -17,7 +17,8 @@ INVARIANT input: ABSTRACT_STRINGS &
           written_index: NATURAL &
           error_occurred: BOOL &
           (decomp(input))'RESULT = output &
-          (decomp(input))'ERROR = error_occurred
+          (decomp(input))'ERROR = error_occurred &
+          written_index <= size(output)
 
 INITIALISATION input := <> || written_index := 0 || output := <> || error_occurred := FALSE
     
