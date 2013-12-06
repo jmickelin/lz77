@@ -19,7 +19,9 @@ OPERATIONS
             pp:  NAT &
             ll:  NAT &
             qq:  (1..max_quote_length) --> BYTE &
-            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS
+            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS &
+            (tag = Lit => pp = 0 & ll = 0 & qq:1..max_quote_length --> BYTE) &
+            (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
         THEN
             input := input <- rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq)
             || IF tag = Lit
