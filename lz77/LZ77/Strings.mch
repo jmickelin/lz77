@@ -15,16 +15,18 @@ ABSTRACT_CONSTANTS REFERENCES,
           BYTE_STRINGS,
           ABSTRACT_STRINGS,
           MAYBE_STRINGS,
-          ATOM_UNIVERSE
-PROPERTIES window_size : NAT &
-           lookahead_buffer_size : NAT &
-           max_quote_length : NAT &
+          ATOM_UNIVERSE,
+          QUOTES
+PROPERTIES window_size : NAT1 &
+           lookahead_buffer_size : NAT1 &
+           max_quote_length : NAT1 &
            BYTE = 0..255 &
            BYTE_STRINGS = seq(BYTE) &
+           QUOTES = {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
            ATOM_UNIVERSE = struct(TAG:TAGS, 
                                   POINTER:NAT, 
                                   LENGTH:NAT, 
-                                  QUOTE: 1..max_quote_length --> BYTE) &
+                                  QUOTE: QUOTES) &
            REFERENCES = { aa | aa:ATOM_UNIVERSE &
                                aa'TAG = Ref &
                                aa'POINTER: (1..window_size) & 

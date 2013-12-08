@@ -13,13 +13,14 @@ INVARIANT input: ABSTRACT_STRINGS &
           written_index <= size(output)
 INITIALISATION input := <> || output := <> || written_index := 0
 OPERATIONS 
-    put_atom(tag,pp,ll,qq) = 
+    put_atom(tag,pp,ll,qqlen,qq) = 
         PRE tag: TAGS &
             pp:  NAT &
             ll:  NAT &
-            qq:  (1..max_quote_length) --> BYTE &
+            qqlen: 1..max_quote_length &
+            qq:  1..qqlen --> BYTE &
             rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS &
-            (tag = Lit => pp = 0 & ll = 0 & qq:1..max_quote_length --> BYTE) &
+            (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
         THEN
             input := input <- rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq)
