@@ -10,8 +10,7 @@ VARIABLES input,
 INVARIANT input: ABSTRACT_STRINGS &
           output: BYTE_STRINGS &
           written_index: NATURAL &
-          written_index <= size(output) 
-          /* Add invariant for how input and output interact */
+          written_index <= size(output)
 INITIALISATION input := <> || output := <> || written_index := 0
 OPERATIONS 
     put_atom(tag,pp,ll,qq) = 
