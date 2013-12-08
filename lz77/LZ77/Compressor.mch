@@ -8,25 +8,30 @@ SEES Strings, DecompConstants
 VARIABLES input,
           output,
           written_index,
-          is_ready
+          is_ready,
+          is_finishing
 
 INVARIANT input:            BYTE_STRINGS &
           output:           ABSTRACT_STRINGS &
           written_index:    NATURAL &
           is_ready:         BOOL &
+          is_finishing:     BOOL &
           
           (decomp(output))'RESULT = input &
           (decomp(output))'ERROR  = FALSE &
           written_index <= size(output) &
-          (is_ready = TRUE => written_index < size(output))
+          (is_ready = TRUE => written_index < size(output)) &
+          (is_finishing = TRUE & written_index < size(output) => is_ready = TRUE)
           
 INITIALISATION input := <> 
                || output := <>
                || written_index := 0
                || is_ready := FALSE
+               || is_finishing := FALSE
 OPERATIONS
     put_byte(bb) = 
-       PRE bb:BYTE
+       PRE bb:BYTE &
+           is_finishing = FALSE
        THEN
            input := input <- bb
            || ANY as,tt WHERE as: ABSTRACT_STRINGS &
@@ -40,6 +45,18 @@ OPERATIONS
                   || is_ready := tt
               END
        END;
+    finish = ANY as,tt WHERE as: ABSTRACT_STRINGS &
+                             tt: BOOL &
+                             (decomp(as))'RESULT = input &
+                             (decomp(as))'ERROR = FALSE &
+                             written_index <= size(as) & /* This is implied by the next line */
+                             as /|\ written_index = output /|\ written_index &
+                             ((written_index < size(as)) <=> (tt = TRUE))
+             THEN output := as
+                 || is_ready := tt
+                 || is_finishing := TRUE
+             END;
+    tt <-- finishing = tt := is_finishing;
     tt <-- ready = tt := is_ready;
     tag,pp,ll,qq <-- read_atom =
        PRE is_ready = TRUE
@@ -49,7 +66,8 @@ OPERATIONS
            END
            || written_index := written_index + 1
            || ANY tt WHERE tt: BOOL &
-                           (tt = TRUE => written_index + 1 < size(output))
+                           (tt = TRUE => written_index + 1 < size(output)) &
+                           (is_finishing = TRUE & written_index + 1 < size(output) => tt = TRUE)
               THEN 
                  is_ready := tt
               END
