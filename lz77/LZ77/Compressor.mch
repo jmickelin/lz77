@@ -36,23 +36,19 @@ OPERATIONS
            input := input <- bb
            || ANY as,tt WHERE as: ABSTRACT_STRINGS &
                               tt: BOOL &
-                              (decomp(as))'RESULT = input <- bb &
-                              (decomp(as))'ERROR = FALSE &
-                              written_index <= size(as) & /* This is implied by the next line */
-                              as /|\ written_index = output /|\ written_index &
-                              (tt = TRUE => written_index < size(as))
-              THEN output := as
+                              (decomp((output/|\ written_index) ^ as))'RESULT = input <- bb &
+                              (decomp((output/|\ written_index) ^ as))'ERROR = FALSE &
+                              (tt = TRUE => 0 < size(as))
+              THEN output := (output/|\ written_index) ^ as
                   || is_ready := tt
               END
        END;
     finish = ANY as,tt WHERE as: ABSTRACT_STRINGS &
                              tt: BOOL &
-                             (decomp(as))'RESULT = input &
-                             (decomp(as))'ERROR = FALSE &
-                             written_index <= size(as) & /* This is implied by the next line */
-                             as /|\ written_index = output /|\ written_index &
-                             ((written_index < size(as)) <=> (tt = TRUE))
-             THEN output := as
+                             (decomp((output /|\ written_index) ^ as))'RESULT = input &
+                             (decomp((output /|\ written_index) ^ as))'ERROR = FALSE &
+                             ((0 < size(as)) <=> (tt = TRUE))
+             THEN output := (output /|\ written_index) ^ as
                  || is_ready := tt
                  || is_finishing := TRUE
              END;
