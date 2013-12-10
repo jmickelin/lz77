@@ -27,8 +27,8 @@ OPERATIONS
         PRE tag:TAGS &
             pp: NAT &
             ll: NAT &
-            qq: 0..max_quote_length --> BYTE &
-            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS
+            qq: {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
+            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS &
         THEN
             LET aa BE aa = rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq)
             IN
