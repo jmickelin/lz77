@@ -29,6 +29,8 @@ INITIALISATION input := <>
                || is_ready := FALSE
                || is_finishing := FALSE
 OPERATIONS
+    /* To find valid transitions, ProB requires a long timeout. */
+    /* debug <-- */ /* Output the chosen suffix for animation */
     put_byte(bb) = 
        PRE bb:BYTE &
            is_finishing = FALSE
@@ -39,18 +41,23 @@ OPERATIONS
                               (decomp((output/|\ written_index) ^ as))'RESULT = input <- bb &
                               (decomp((output/|\ written_index) ^ as))'ERROR = FALSE &
                               (tt = TRUE => 0 < size(as))
+                              /* & size(as) < 3 */ /* Limit search space for animation */
               THEN output := (output/|\ written_index) ^ as
                   || is_ready := tt
+                  /* || debug := as */
               END
        END;
+    /* debug <-- */ /* Output the chosen suffix for animation */
     finish = ANY as,tt WHERE as: ABSTRACT_STRINGS &
                              tt: BOOL &
                              (decomp((output /|\ written_index) ^ as))'RESULT = input &
                              (decomp((output /|\ written_index) ^ as))'ERROR = FALSE &
                              ((0 < size(as)) <=> (tt = TRUE))
+                             /* & size(as) < 3 */ /* Limit search space for animation */
              THEN output := (output /|\ written_index) ^ as
                  || is_ready := tt
                  || is_finishing := TRUE
+                 /* || debug := as */
              END;
     tt <-- finishing = tt := is_finishing;
     tt <-- ready = tt := is_ready;

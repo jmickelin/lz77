@@ -17,10 +17,14 @@ ABSTRACT_CONSTANTS REFERENCES,
           MAYBE_STRINGS,
           ATOM_UNIVERSE,
           QUOTES
-PROPERTIES window_size : NAT1 & /* window_size = 2 & */
-           lookahead_buffer_size : NAT1 & /* lookahead_buffer_size = 2 & */
-           max_quote_length : NAT1 & /* max_quote_length = 2 & */
+PROPERTIES window_size : NAT1 &
+           lookahead_buffer_size : NAT1 &
+           max_quote_length : NAT1 &
+           /* window_size = 2 & 
+              lookahead_buffer_size = 2 & 
+              max_quote_length = 2 & */ /* Give explicit values, for animation. */
            BYTE = 0..255 &
+           /* BYTE = 0..1 & */ /* Limit number of possible characters, for animation. */
            BYTE_STRINGS = seq(BYTE) &
            QUOTES = {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
            ATOM_UNIVERSE = struct(TAG:TAGS, 
