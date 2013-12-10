@@ -19,7 +19,7 @@ ABSTRACT_CONSTANTS REFERENCES,
           QUOTES
 PROPERTIES window_size : NAT1 & /* window_size = 2 & */
            lookahead_buffer_size : NAT1 & /* lookahead_buffer_size = 2 & */
-           max_quote_length : NAT1 & /* max_quote_length = 2 */
+           max_quote_length : NAT1 & /* max_quote_length = 2 & */
            BYTE = 0..255 &
            BYTE_STRINGS = seq(BYTE) &
            QUOTES = {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
