@@ -29,42 +29,42 @@ OPERATIONS
         THEN
            input := input<- bb
            ||
-           LET nondecoded, ref_size, lit_size BE
-               nondecoded = (input<-bb)\|/decoded_index &
-               ref_size = 1 + window_size_nbytes + lookahead_buffer_size_nbytes &
-               lit_size = 1 + max_quote_length_nbytes 
-                            + decode_quote_length((tail(nondecoded))/|\max_quote_length_nbytes)
+           LET nondecoded BE
+               nondecoded = (input<-bb)\|/decoded_index
            IN
               SELECT nondecoded(1) = ref_code THEN
-                  IF size(nondecoded) = ref_size
+                  IF size(nondecoded) = 1 + window_size_nbytes + lookahead_buffer_size_nbytes
                   THEN
                       LET pointer,length BE
-                          pointer = tail(nondecoded)/|\window_size_nbytes &
-                          length  = (tail(nondecoded)\|/window_size_nbytes)/|\lookahead_buffer_size_nbytes
+                          pointer = (nondecoded \|/ 1) /|\ window_size_nbytes &
+                          length  = (nondecoded \|/ (1 + window_size_nbytes)) /|\ lookahead_buffer_size_nbytes
                       IN
                           output := output <- rec(TAG:Ref,
-                                                  POINTER:decode_pointer(pointer),
-                                                  LENGTH:decode_length(length),
-                                                  QUOTE:<>)
+                                                  POINTER: decode_pointer(pointer),
+                                                  LENGTH: decode_length(length),
+                                                  QUOTE: <>)
                           || decoded_index := size(input<-bb)
                       END
                   END
               WHEN nondecoded(1) = lit_code THEN
-                  IF size(nondecoded) = lit_size
-                  THEN
-                      LET quote BE
-                          quote = (tail(nondecoded))\|/max_quote_length_nbytes
-                      IN 
-                          output := output <- rec(TAG:Lit,
-                                                  POINTER:0,
-                                                  LENGTH: 0,
-                                                  QUOTE: quote)
-                          || decoded_index := size(input<-bb)
+                  IF size(nondecoded) > 1 + max_quote_length_nbytes THEN
+                      LET quote_length, partial_quote
+                      BE quote_length = decode_quote_length((nondecoded \|/ 1) /|\ max_quote_length_nbytes) &
+                         partial_quote = (nondecoded \|/ (1 + max_quote_length_nbytes))
+                      IN
+                          IF size(nondecoded) = 1 + max_quote_length_nbytes + quote_length
+                          THEN
+                              output := output <- rec(TAG:Lit,
+                                                      POINTER: 0,
+                                                      LENGTH: 0,
+                                                      QUOTE: partial_quote) /* Exactly the whole quote */
+                              || decoded_index := size(input<-bb)
+                          END
                       END
                   END
               ELSE error_occurred := TRUE
               END
-           END   
+           END
         END;
    tt <-- error_status = tt := error_occurred;
    tt <-- ready = tt := bool(written_index < size(output));
