@@ -48,16 +48,19 @@ OPERATIONS
               END
        END;
     /* debug <-- */ /* Output the chosen suffix for animation */
-    finish = ANY as,tt WHERE as: ABSTRACT_STRINGS &
-                             tt: BOOL &
-                             (decomp((output /|\ written_index) ^ as))'RESULT = input &
-                             (decomp((output /|\ written_index) ^ as))'ERROR = FALSE &
-                             ((0 < size(as)) <=> (tt = TRUE))
-                             /* & size(as) < 3 */ /* Limit search space for animation */
-             THEN output := (output /|\ written_index) ^ as
-                 || is_ready := tt
-                 || is_finishing := TRUE
-                 /* || debug := as */
+    finish = PRE is_finishing = FAlSE
+             THEN
+                 ANY as,tt WHERE as: ABSTRACT_STRINGS &
+                                tt: BOOL &
+                                (decomp((output /|\ written_index) ^ as))'RESULT = input &
+                                (decomp((output /|\ written_index) ^ as))'ERROR = FALSE &
+                                ((0 < size(as)) <=> (tt = TRUE))
+                                /* & size(as) < 3 */ /* Limit search space for animation */
+                THEN output := (output /|\ written_index) ^ as
+                    || is_ready := tt
+                    || is_finishing := TRUE
+                    /* || debug := as */
+                END
              END;
     tt <-- finishing = tt := is_finishing;
     tt <-- ready = tt := is_ready;
