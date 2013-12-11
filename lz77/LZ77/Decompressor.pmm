@@ -1,5 +1,5 @@
 ﻿THEORY User_Pass IS
-Operation(put_atom) & ff(0) & pr & pr;
-Operation(put_atom) & ff(0) & dd & ah(ms = decomp_atom(aa,output)) & ph(aa,input,!(aa,as).(aa : ATOMS & as : ABSTRACT_STRINGS => decomp(as<-aa)'RESULT = decomp(as)'RESULT^decomp_atom(aa,decomp(as)'RESULT)'RESULT)) & pr & pr & ah(output = decomp(input)'RESULT) & pr;
-Operation(put_atom) & ff(0) & dd & ah(ms = decomp_atom(aa,output)) & ah(error_occurred = decomp(input)'ERROR) & pr & ah(output = decomp(input)'RESULT) & pr & ph(aa,input,!(aa,as$0).(aa : ATOMS & as$0 : ABSTRACT_STRINGS => decomp(as$0<-aa)'ERROR = bool(decomp(as$0)'ERROR = TRUE or decomp_atom(aa,decomp(as$0)'RESULT)'ERROR = TRUE))) & pr & pr
+Operation(decomp_put_atom) & ff(0) & pr & pr;
+Operation(decomp_put_atom) & ff(0) & dd & ah(ms = decomp_atom(aa,decomp_output)) & ph(aa,decomp_input,!(aa,as).(aa : ATOMS & as : ABSTRACT_STRINGS => decomp(as<-aa)'RESULT = decomp(as)'RESULT^decomp_atom(aa,decomp(as)'RESULT)'RESULT)) & pr & pr & ah(decomp_output = decomp(decomp_input)'RESULT) & pr;
+Operation(decomp_put_atom) & ff(0) & dd & ah(ms = decomp_atom(aa,decomp_output)) & ah(decomp_error_occurred = decomp(decomp_input)'ERROR) & pr & ah(decomp_output = decomp(decomp_input)'RESULT) & pr & ph(aa,decomp_input,!(aa,as$0).(aa : ATOMS & as$0 : ABSTRACT_STRINGS => decomp(as$0<-aa)'ERROR = bool(decomp(as$0)'ERROR = TRUE or decomp_atom(aa,decomp(as$0)'RESULT)'ERROR = TRUE))) & pr & pr
 END 

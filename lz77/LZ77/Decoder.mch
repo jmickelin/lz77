@@ -4,33 +4,33 @@
  */
 MACHINE Decoder
 SEES Strings, EncodeConstants
-VARIABLES input,
-          output,
-          decoded_index,
-          written_index,
-          error_occurred
-INVARIANT input: BYTE_STRINGS &
-          output: ABSTRACT_STRINGS &
-          decoded_index: NATURAL &
-          written_index: NATURAL &
-          error_occurred: BOOL &
+VARIABLES dec_input,
+          dec_output,
+          dec_decoded_index,
+          dec_written_index,
+          dec_error_occurred
+INVARIANT dec_input: BYTE_STRINGS &
+          dec_output: ABSTRACT_STRINGS &
+          dec_decoded_index: NATURAL &
+          dec_written_index: NATURAL &
+          dec_error_occurred: BOOL &
           
-          written_index <= size(output) &
-          decoded_index <= size(input)
+          dec_written_index <= size(dec_output) &
+          dec_decoded_index <= size(dec_input)
           
-INITIALISATION input := <>
-               || output := <>
-               || decoded_index := 0
-               || written_index := 0
-               || error_occurred := FALSE
+INITIALISATION dec_input := <>
+               || dec_output := <>
+               || dec_decoded_index := 0
+               || dec_written_index := 0
+               || dec_error_occurred := FALSE
 OPERATIONS
-    put_byte(bb) = 
+    dec_put_byte(bb) = 
         PRE bb: BYTE
         THEN
-           input := input<- bb
+           dec_input := dec_input<- bb
            ||
            LET nondecoded BE
-               nondecoded = (input<-bb)\|/decoded_index
+               nondecoded = (dec_input<-bb)\|/dec_decoded_index
            IN
               SELECT nondecoded(1) = ref_code THEN
                   IF size(nondecoded) = 1 + pointer_nbytes + runlength_nbytes
@@ -39,11 +39,11 @@ OPERATIONS
                           pointer = (nondecoded \|/ 1) /|\ pointer_nbytes &
                           length  = (nondecoded \|/ (1 + pointer_nbytes)) /|\ runlength_nbytes
                       IN
-                          output := output <- rec(TAG:Ref,
-                                                  POINTER: decode_pointer(pointer),
-                                                  RUNLENGTH: decode_runlength(length),
-                                                  QUOTE: <>)
-                          || decoded_index := size(input<-bb)
+                          dec_output := dec_output <- rec(TAG:Ref,
+                                                          POINTER: decode_pointer(pointer),
+                                                          RUNLENGTH: decode_runlength(length),
+                                                          QUOTE: <>)
+                          || dec_decoded_index := size(dec_input<-bb)
                       END
                   END
               WHEN nondecoded(1) = lit_code THEN
@@ -54,24 +54,24 @@ OPERATIONS
                       IN
                           IF size(nondecoded) = 1 + quote_length_nbytes + quote_length
                           THEN
-                              output := output <- rec(TAG:Lit,
-                                                      POINTER: 0,
-                                                      RUNLENGTH: 0,
-                                                      QUOTE: partial_quote) /* Exactly the whole quote */
-                              || decoded_index := size(input<-bb)
+                              dec_output := dec_output <- rec(TAG:Lit,
+                                                              POINTER: 0,
+                                                              RUNLENGTH: 0,
+                                                              QUOTE: partial_quote) /* Exactly the whole quote */
+                              || dec_decoded_index := size(dec_input<-bb)
                           END
                       END
                   END
-              ELSE error_occurred := TRUE
+              ELSE dec_error_occurred := TRUE
               END
            END
         END;
-   tt <-- error_status = tt := error_occurred;
-   tt <-- ready = tt := bool(written_index < size(output));
-   aa <-- read_atom = 
-       PRE written_index < size(output)
+   tt <-- dec_error_status = tt := dec_error_occurred;
+   tt <-- dec_ready = tt := bool(dec_written_index < size(dec_output));
+   aa <-- dec_read_atom = 
+       PRE dec_written_index < size(dec_output)
        THEN
-           aa := output(written_index + 1)
-           || written_index := written_index + 1
+           aa := dec_output(dec_written_index + 1)
+           || dec_written_index := dec_written_index + 1
        END
 END

@@ -5,16 +5,18 @@
 MACHINE Encoder
 SEES EncodeConstants,
      Strings
-VARIABLES input,
-          output,
-          written_index
-INVARIANT input: ABSTRACT_STRINGS &
-          output: BYTE_STRINGS &
-          written_index: NATURAL &
-          written_index <= size(output)
-INITIALISATION input := <> || output := <> || written_index := 0
+VARIABLES enc_input,
+          enc_output,
+          enc_written_index
+INVARIANT enc_input: ABSTRACT_STRINGS &
+          enc_output: BYTE_STRINGS &
+          enc_written_index: NATURAL &
+          enc_written_index <= size(enc_output)
+INITIALISATION enc_input := <> 
+               || enc_output := <> 
+               || enc_written_index := 0
 OPERATIONS 
-    put_atom(tag,pp,ll,qqlen,qq) = 
+    enc_put_atom(tag,pp,ll,qqlen,qq) = 
         PRE tag: TAGS &
             pp:  0..max_pointer &
             ll:  0..max_runlength &
@@ -24,25 +26,25 @@ OPERATIONS
             (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
         THEN
-            input := input <- rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq)
+            enc_input := enc_input <- rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq)
             || IF tag = Lit
                THEN ANY bs WHERE bs: BYTE_STRINGS &
                                  bs = encode_quote_length(size(qq))
                     THEN 
-                        output := output ^ [lit_code] ^ bs ^ qq
+                        enc_output := enc_output ^ [lit_code] ^ bs ^ qq
                     END
                ELSE ANY bs1,bs2 WHERE bs1: BYTE_STRINGS &
                                       bs2: BYTE_STRINGS &
                                       bs1 = encode_pointer(pp) &
                                       bs2 = encode_runlength(ll)
                     THEN
-                        output := output ^ [ref_code] ^ bs1 ^ bs2
+                        enc_output := enc_output ^ [ref_code] ^ bs1 ^ bs2
                     END
                END
         END;
-tt <-- ready = tt := bool(written_index < size(output));
-bb <-- read_byte = PRE written_index < size(output)
-                   THEN bb := output(written_index + 1)
-                        || written_index := written_index + 1
+tt <-- enc_ready = tt := bool(enc_written_index < size(enc_output));
+bb <-- enc_read_byte = PRE enc_written_index < size(enc_output)
+                   THEN bb := enc_output(enc_written_index + 1)
+                        || enc_written_index := enc_written_index + 1
                    END
 END

@@ -7,23 +7,26 @@ MACHINE Decompressor
 SEES DecompConstants,
      Strings
 
-VARIABLES input,
-          written_index,
-          output,
-          error_occurred
+VARIABLES decomp_input,
+          decomp_written_index,
+          decomp_output,
+          decomp_error_occurred
 
-INVARIANT input: ABSTRACT_STRINGS &
-          output: BYTE_STRINGS &
-          written_index: NATURAL &
-          error_occurred: BOOL &
-          (decomp(input))'RESULT = output &
-          (decomp(input))'ERROR = error_occurred &
-          written_index <= size(output)
+INVARIANT decomp_input: ABSTRACT_STRINGS &
+          decomp_output: BYTE_STRINGS &
+          decomp_written_index: NATURAL &
+          decomp_error_occurred: BOOL &
+          (decomp(decomp_input))'RESULT = decomp_output &
+          (decomp(decomp_input))'ERROR = decomp_error_occurred &
+          decomp_written_index <= size(decomp_output)
 
-INITIALISATION input := <> || written_index := 0 || output := <> || error_occurred := FALSE
+INITIALISATION decomp_input := <> 
+               || decomp_written_index := 0 
+               || decomp_output := <> 
+               || decomp_error_occurred := FALSE
     
 OPERATIONS
-    put_atom(tag,pp,ll,qqlen,qq) = 
+    decomp_put_atom(tag,pp,ll,qqlen,qq) = 
         PRE tag: TAGS &
             pp:  0..max_pointer &
             ll:  0..max_runlength &
@@ -36,19 +39,19 @@ OPERATIONS
             LET aa BE aa = rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq)
             IN
                 ANY ms WHERE ms: MAYBE_STRINGS & 
-                             ms = decomp_atom(aa, output)
+                             ms = decomp_atom(aa, decomp_output)
                 THEN
-                    input := input <- aa
-                   || output := output ^ ms'RESULT
-                   || error_occurred := bool(error_occurred = TRUE or ms'ERROR = TRUE)
+                    decomp_input := decomp_input <- aa
+                   || decomp_output := decomp_output ^ ms'RESULT
+                   || decomp_error_occurred := bool(decomp_error_occurred = TRUE or ms'ERROR = TRUE)
                 END
             END
         END;
-    tt <-- ready = tt := bool(written_index < size(output));
-    tt <-- error_status = tt := error_occurred;                           
-    bb <-- read_byte = PRE written_index < size(output)
+    tt <-- decomp_ready = tt := bool(decomp_written_index < size(decomp_output));
+    tt <-- decomp_error_status = tt := decomp_error_occurred;                           
+    bb <-- decomp_read_byte = PRE decomp_written_index < size(decomp_output)
                        THEN
-                           bb := output(written_index + 1)
-                           || written_index := written_index + 1
+                           bb := decomp_output(decomp_written_index + 1)
+                           || decomp_written_index := decomp_written_index + 1
                        END
 END 
