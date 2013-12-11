@@ -1,0 +1,4 @@
+﻿THEORY User_Pass IS
+Operation(put_byte) & Pattern(a<-rec(b>>(c|->d),e>>f,g>>f,h>>i) : j) & ff(0) & pr & pr & pr & pr & pr & pr & pr & ss;
+Operation(put_byte) & Pattern(a<-rec(b>>(c|->d),e>>f(g),h>>i(j),k>>l) : m) & ff(0) & ss & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr & pr
+END 
