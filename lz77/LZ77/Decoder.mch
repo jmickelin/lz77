@@ -8,24 +8,30 @@ VARIABLES dec_input,
           dec_output,
           dec_decoded_index,
           dec_written_index,
-          dec_error_occurred
+          dec_error_occurred,
+          dec_is_finishing
+          
 INVARIANT dec_input: BYTE_STRINGS &
           dec_output: ABSTRACT_STRINGS &
           dec_decoded_index: NATURAL &
           dec_written_index: NATURAL &
           dec_error_occurred: BOOL &
+          dec_is_finishing: BOOL &
           
           dec_written_index <= size(dec_output) &
           dec_decoded_index <= size(dec_input)
-          
+
 INITIALISATION dec_input := <>
                || dec_output := <>
                || dec_decoded_index := 0
                || dec_written_index := 0
                || dec_error_occurred := FALSE
+               || dec_is_finishing := FALSE
+               
 OPERATIONS
     dec_put_byte(bb) = 
-        PRE bb: BYTE
+        PRE bb: BYTE &
+            dec_is_finishing = FALSE
         THEN
            dec_input := dec_input<- bb
            ||
@@ -67,6 +73,12 @@ OPERATIONS
            END
         END;
    tt <-- dec_error_status = tt := dec_error_occurred;
+   dec_finish = PRE dec_is_finishing = FALSE
+                THEN
+                    dec_error_occurred := bool(dec_decoded_index < size(dec_input))
+                    || dec_is_finishing := TRUE
+                END;
+   tt <-- dec_finishing = tt := dec_is_finishing;
    tt <-- dec_ready = tt := bool(dec_written_index < size(dec_output));
    aa <-- dec_read_atom = 
        PRE dec_written_index < size(dec_output)
