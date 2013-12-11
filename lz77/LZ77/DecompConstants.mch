@@ -19,7 +19,7 @@ PROPERTIES
                                     ERROR: FALSE))
                   <+
                   /* To make this a total function, we replace erroneous back-references
-                     with the empty strin=g.
+                     with the empty string.
                   */
                   % (aa,buf) . (aa: REFERENCES & buf: BYTE_STRINGS & aa'POINTER > size(buf) |
                                 rec(RESULT: <>,
