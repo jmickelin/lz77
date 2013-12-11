@@ -68,7 +68,7 @@ OPERATIONS
        PRE is_ready = TRUE
        THEN
            LET aa BE aa = output(written_index + 1)
-           IN tag,pp,ll,qq := aa'TAG,aa'POINTER,aa'LENGTH,aa'QUOTE
+           IN tag,pp,ll,qq := aa'TAG,aa'POINTER,aa'RUNLENGTH,aa'QUOTE
            END
            || written_index := written_index + 1
            || ANY tt WHERE tt: BOOL &

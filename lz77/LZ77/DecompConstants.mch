@@ -14,7 +14,7 @@ PROPERTIES
                                     ERROR: FALSE))
                   <+
                   % (aa,buf) . (aa: REFERENCES & buf: BYTE_STRINGS & aa'POINTER <= size(buf) |
-                                rec(RESULT:%nn . (nn : 1..(aa'LENGTH) | 
+                                rec(RESULT:%nn . (nn : 1..(aa'RUNLENGTH) | 
                                                   buf(size(buf) + 1 - (aa'POINTER) + ((nn - 1) mod (aa'POINTER)))),
                                     ERROR: FALSE))
                   <+

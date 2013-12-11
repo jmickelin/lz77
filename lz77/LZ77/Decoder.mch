@@ -33,30 +33,30 @@ OPERATIONS
                nondecoded = (input<-bb)\|/decoded_index
            IN
               SELECT nondecoded(1) = ref_code THEN
-                  IF size(nondecoded) = 1 + window_size_nbytes + lookahead_buffer_size_nbytes
+                  IF size(nondecoded) = 1 + pointer_nbytes + runlength_nbytes
                   THEN
                       LET pointer,length BE
-                          pointer = (nondecoded \|/ 1) /|\ window_size_nbytes &
-                          length  = (nondecoded \|/ (1 + window_size_nbytes)) /|\ lookahead_buffer_size_nbytes
+                          pointer = (nondecoded \|/ 1) /|\ pointer_nbytes &
+                          length  = (nondecoded \|/ (1 + pointer_nbytes)) /|\ runlength_nbytes
                       IN
                           output := output <- rec(TAG:Ref,
                                                   POINTER: decode_pointer(pointer),
-                                                  LENGTH: decode_length(length),
+                                                  RUNLENGTH: decode_runlength(length),
                                                   QUOTE: <>)
                           || decoded_index := size(input<-bb)
                       END
                   END
               WHEN nondecoded(1) = lit_code THEN
-                  IF size(nondecoded) > 1 + max_quote_length_nbytes THEN
+                  IF size(nondecoded) > 1 + quote_length_nbytes THEN
                       LET quote_length, partial_quote
-                      BE quote_length = decode_quote_length((nondecoded \|/ 1) /|\ max_quote_length_nbytes) &
-                         partial_quote = (nondecoded \|/ (1 + max_quote_length_nbytes))
+                      BE quote_length = decode_quote_length((nondecoded \|/ 1) /|\ quote_length_nbytes) &
+                         partial_quote = (nondecoded \|/ (1 + quote_length_nbytes))
                       IN
-                          IF size(nondecoded) = 1 + max_quote_length_nbytes + quote_length
+                          IF size(nondecoded) = 1 + quote_length_nbytes + quote_length
                           THEN
                               output := output <- rec(TAG:Lit,
                                                       POINTER: 0,
-                                                      LENGTH: 0,
+                                                      RUNLENGTH: 0,
                                                       QUOTE: partial_quote) /* Exactly the whole quote */
                               || decoded_index := size(input<-bb)
                           END

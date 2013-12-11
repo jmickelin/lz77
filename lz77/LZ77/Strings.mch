@@ -5,8 +5,8 @@
 MACHINE Strings
 SETS TAGS = {Ref, Lit}
 CONSTANTS BYTE,
-          window_size,
-          lookahead_buffer_size,
+          max_pointer,
+          max_runlength,
           max_quote_length
 
 ABSTRACT_CONSTANTS REFERENCES, 
@@ -17,11 +17,11 @@ ABSTRACT_CONSTANTS REFERENCES,
           MAYBE_STRINGS,
           ATOM_UNIVERSE,
           QUOTES
-PROPERTIES window_size : NAT1 &
-           lookahead_buffer_size : NAT1 &
-           max_quote_length : NAT1 &
-           /* window_size = 2 & 
-              lookahead_buffer_size = 2 & 
+PROPERTIES max_pointer: NAT1 &
+           max_runlength: NAT1 &
+           max_quote_length: NAT1 &
+           /* max_pointer = 2 & 
+              max_runlength = 2 & 
               max_quote_length = 2 & */ /* Give explicit values, for animation. */
            BYTE = 0..255 &
            /* BYTE = 0..1 & */ /* Limit number of possible characters, for animation. */
@@ -29,18 +29,18 @@ PROPERTIES window_size : NAT1 &
            QUOTES = {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
            ATOM_UNIVERSE = struct(TAG:TAGS, 
                                   POINTER:NAT, 
-                                  LENGTH:NAT, 
+                                  RUNLENGTH:NAT, 
                                   QUOTE: QUOTES) &
            REFERENCES = { aa | aa:ATOM_UNIVERSE &
                                aa'TAG = Ref &
-                               aa'POINTER: (1..window_size) & 
-                               aa'LENGTH: (1..lookahead_buffer_size) &
+                               aa'POINTER: (1..max_pointer) & 
+                               aa'RUNLENGTH: (1..max_runlength) &
                                aa'QUOTE = <>
                         } &
            LITERALS = { aa | aa:ATOM_UNIVERSE &
                              aa'TAG = Lit &
                              aa'POINTER = 0 & 
-                             aa'LENGTH = 0 &
+                             aa'RUNLENGTH = 0 &
                              aa'QUOTE /= <>
                       } &
            ATOMS = REFERENCES \/ LITERALS &
