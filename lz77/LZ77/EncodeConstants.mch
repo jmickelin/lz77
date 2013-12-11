@@ -19,9 +19,9 @@ PROPERTIES lit_code: BYTE &
            ref_code: BYTE &
            lit_code = 0 &
            ref_code = 1 &
-           max_quote_length_nbytes: NAT &
-           window_size_nbytes: NAT &
-           lookahead_buffer_size_nbytes: NAT &
+           max_quote_length_nbytes: NAT1 &
+           window_size_nbytes: NAT1 &
+           lookahead_buffer_size_nbytes: NAT1 &
            /* */
            2**(8*max_quote_length_nbytes) = max_quote_length &
            2**(8*window_size_nbytes) = window_size &
