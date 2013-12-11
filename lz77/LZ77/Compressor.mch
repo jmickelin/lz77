@@ -48,7 +48,7 @@ OPERATIONS
               END
        END;
     /* debug <-- */ /* Output the chosen suffix for animation */
-    finish = PRE is_finishing = FAlSE
+    finish = PRE is_finishing = FALSE
              THEN
                  ANY as,tt WHERE as: ABSTRACT_STRINGS &
                                 tt: BOOL &
