@@ -23,12 +23,15 @@ INVARIANT input: ABSTRACT_STRINGS &
 INITIALISATION input := <> || written_index := 0 || output := <> || error_occurred := FALSE
     
 OPERATIONS
-    put_atom(tag,pp,ll,qq) = 
-        PRE tag:TAGS &
-            pp: NAT &
-            ll: NAT &
-            qq: {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
-            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS 
+    put_atom(tag,pp,ll,qqlen,qq) = 
+        PRE tag: TAGS &
+            pp:  0..window_size &
+            ll:  0..lookahead_buffer_size &
+            qqlen: 0..max_quote_length &
+            qq: 1..qqlen --> BYTE &
+            rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS &
+            (tag = Lit => pp = 0 & ll = 0) &
+            (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
         THEN
             LET aa BE aa = rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq)
             IN

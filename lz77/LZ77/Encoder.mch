@@ -15,10 +15,10 @@ INITIALISATION input := <> || output := <> || written_index := 0
 OPERATIONS 
     put_atom(tag,pp,ll,qqlen,qq) = 
         PRE tag: TAGS &
-            pp:  NAT &
-            ll:  NAT &
-            qqlen: 1..max_quote_length &
-            qq:  1..qqlen --> BYTE &
+            pp:  0..window_size &
+            ll:  0..lookahead_buffer_size &
+            qqlen: 0..max_quote_length &
+            qq: 1..qqlen --> BYTE &
             rec(TAG:tag,POINTER:pp,LENGTH:ll,QUOTE:qq): ATOMS &
             (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
