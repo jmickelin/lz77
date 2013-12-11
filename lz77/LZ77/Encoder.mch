@@ -3,7 +3,8 @@
  * Creation date: 2013-12-05
  */
 MACHINE Encoder
-SEES Strings, EncodeConstants
+SEES EncodeConstants,
+     Strings
 VARIABLES input,
           output,
           written_index
