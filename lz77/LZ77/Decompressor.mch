@@ -36,15 +36,12 @@ OPERATIONS
             (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
         THEN
-            LET aa BE aa = rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq)
+            LET aa,ms BE aa = rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq) &
+                         ms = decomp_atom(aa, decomp_output)
             IN
-                ANY ms WHERE ms: MAYBE_STRINGS & 
-                             ms = decomp_atom(aa, decomp_output)
-                THEN
-                    decomp_input := decomp_input <- aa
-                   || decomp_output := decomp_output ^ ms'RESULT
-                   || decomp_error_occurred := bool(decomp_error_occurred = TRUE or ms'ERROR = TRUE)
-                END
+                decomp_input := decomp_input <- aa
+                || decomp_output := decomp_output ^ ms'RESULT
+                || decomp_error_occurred := bool(decomp_error_occurred = TRUE or ms'ERROR = TRUE)
             END
         END;
     tt <-- decomp_ready = tt := bool(decomp_written_index < size(decomp_output));
