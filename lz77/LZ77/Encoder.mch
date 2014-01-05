@@ -5,13 +5,22 @@
 MACHINE Encoder
 SEES EncodeConstants,
      Strings
+
+CONSTANTS enc_max_waiting
+    
+PROPERTIES enc_max_waiting: NAT &
+           1 + pointer_nbytes + runlength_nbytes <= enc_max_waiting &
+           1 + quote_length_nbytes + max_quote_length <= enc_max_waiting
+     
 VARIABLES enc_input,
           enc_output,
           enc_written_index
 INVARIANT enc_input: ABSTRACT_STRINGS &
           enc_output: BYTE_STRINGS &
           enc_written_index: NATURAL &
-          enc_written_index <= size(enc_output)
+          enc_written_index <= size(enc_output) &
+          size(enc_output) - enc_written_index <= enc_max_waiting
+          
 INITIALISATION enc_input := <> 
                || enc_output := <> 
                || enc_written_index := 0
@@ -24,7 +33,8 @@ OPERATIONS
             qq: 1..qqlen --> BYTE &
             rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq): ATOMS &
             (tag = Lit => pp = 0 & ll = 0) &
-            (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
+            (tag = Ref => pp /= 0  & ll /= 0 & qq = <>) &
+            size(enc_output) - enc_written_index = 0
         THEN
             enc_input := enc_input <- rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq)
             || IF tag = Lit

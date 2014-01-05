@@ -7,6 +7,12 @@ MACHINE Decompressor
 SEES DecompConstants,
      Strings
 
+CONSTANTS decomp_max_waiting
+
+PROPERTIES decomp_max_waiting: NAT &
+           max_quote_length <= decomp_max_waiting &
+           max_runlength <= decomp_max_waiting
+
 VARIABLES decomp_input,
           decomp_written_index,
           decomp_output,
@@ -18,7 +24,8 @@ INVARIANT decomp_input: ABSTRACT_STRINGS &
           decomp_error_occurred: BOOL &
           (decomp(decomp_input))'RESULT = decomp_output &
           (decomp(decomp_input))'ERROR = decomp_error_occurred &
-          decomp_written_index <= size(decomp_output)
+          decomp_written_index <= size(decomp_output) &
+          size(decomp_output) - decomp_written_index <= decomp_max_waiting
 
 INITIALISATION decomp_input := <> 
                || decomp_written_index := 0 
@@ -27,7 +34,8 @@ INITIALISATION decomp_input := <>
     
 OPERATIONS
     decomp_put_atom(tag,pp,ll,qqlen,qq) = 
-        PRE tag: TAGS &
+        PRE size(decomp_output) - decomp_written_index = 0 &
+            tag: TAGS &
             pp:  0..max_pointer &
             ll:  0..max_runlength &
             qqlen: 0..max_quote_length &

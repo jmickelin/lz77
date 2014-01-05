@@ -4,6 +4,7 @@
  */
 MACHINE Decoder
 SEES Strings, EncodeConstants
+
 VARIABLES dec_input,
           dec_output,
           dec_decoded_index,
@@ -20,7 +21,7 @@ INVARIANT dec_input: BYTE_STRINGS &
           
           dec_written_index <= size(dec_output) &
           dec_decoded_index <= size(dec_input)
-
+          
 INITIALISATION dec_input := <>
                || dec_output := <>
                || dec_decoded_index := 0
@@ -31,7 +32,9 @@ INITIALISATION dec_input := <>
 OPERATIONS
     dec_put_byte(bb) = 
         PRE bb: BYTE &
-            dec_is_finishing = FALSE
+            dec_is_finishing = FALSE &
+            dec_error_occurred = FALSE &
+            size(dec_output) - dec_written_index = 0
         THEN
            dec_input := dec_input<- bb
            ||
