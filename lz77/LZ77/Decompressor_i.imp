@@ -1,0 +1,100 @@
+IMPLEMENTATION
+    Decompressor_i
+REFINES
+    Decompressor
+
+SEES
+    DecompConstants,
+    Strings
+
+VALUES
+    decomp_max_waiting = 4096
+
+CONCRETE_VARIABLES
+    decomp_output_buffer,
+    decomp_output_buffer_index,
+    decomp_window,
+    decomp_window_index,
+    decomp_window_wrapped,
+    decomp_error_occurred
+
+INVARIANT
+    decomp_output_buffer: (0..decomp_max_waiting - 1) --> BYTE &
+    decomp_output_buffer_index: NAT &
+    decomp_output_buffer_index: dom(decomp_output_buffer) &
+    decomp_window: (0..max_pointer - 1) --> BYTE &
+    decomp_window_index: NAT &
+    decomp_window_index: dom(decomp_window) &
+    decomp_window_wrapped: BOOL &
+
+    decomp_output_buffer\|/ decomp_output_buffer_index = 
+        % ii . (ii : dom(decomp_output_buffer \|/ decomp_output_buffer_index) | 
+                  (decomp_output \|/ decomp_written_index)(ii + 1)) &
+
+    
+    /*% ii . (ii: (1..max_pointer) | decomp_window((decomp_window_index + ii - 1) mod decomp_max_waiting))
+    { jj,ee | jj = (ii + 1) & ee = decomp_window((decomp_window_index + ii) mod decomp_max_waiting) & ii: dom(decomp_window) } = 
+*/    /*    (decomp_output \|/ max(size(decomp_output) - max_pointer,0)) 
+            ^ ((1..max(max_pointer - size(decomp_output), 0)) * {0}) &
+            */
+    (decomp_window\|/decomp_window_index) ^ (decomp_window/|\decomp_window_index) = 
+           % ii . (ii : dom(decomp_output_buffer) | (decomp_output \|/ decomp_written_index)(ii-1))
+    
+INITIALISATION
+    decomp_output_buffer := (0..decomp_max_waiting - 1) * {0};
+    decomp_output_buffer_index := 0;
+    decomp_window := (0..max_pointer - 1) * {0};
+    decomp_window_index := 0;
+    decomp_error_occurred := FALSE;
+    decomp_window_wrapped := FALSE
+
+OPERATIONS
+    decomp_put_atom(tag, pp, ll, qqlen, qq) =
+       IF (tag = Lit)
+       THEN
+           VAR xx IN
+               xx := decomp_window_index + qqlen;
+               decomp_window_wrapped := bool((xx >= max_pointer) 
+                                             or decomp_window_wrapped = TRUE)
+           END;
+               
+           VAR ii IN
+               ii := 1;
+               WHILE ii <= qqlen
+               DO decomp_output_buffer(decomp_output_buffer_index + ii) := qq(ii);
+                  decomp_window(decomp_window_index + ii) := qq(ii);
+                  decomp_window_index := (decomp_window_index + 1) mod max_pointer;
+                  decomp_output_buffer_index := decomp_output_buffer_index + 1;
+                  ii := ii + 1
+               INVARIANT (1 = 1)
+               VARIANT qqlen - ii
+               END
+           END
+       ELSE /* tag = Ref */
+           IF not (decomp_window_wrapped = TRUE or pp <= decomp_window_index)
+           THEN
+              decomp_error_occurred := TRUE
+           ELSE
+               VAR xx IN
+                   xx := decomp_window_index + ll;
+                   decomp_window_wrapped := bool((xx >= max_pointer) 
+                                                 or decomp_window_wrapped = TRUE)
+               END;
+               VAR ii IN
+                   ii := 1;
+                   WHILE ii <= ll
+                   DO decomp_output_buffer(decomp_output_buffer_index) := decomp_window((decomp_window_index - pp) mod max_pointer);
+                      decomp_window(decomp_window_index) := decomp_window((decomp_window_index - pp) mod max_pointer);
+                      decomp_window_index := (decomp_window_index + 1) mod max_pointer;
+                      decomp_output_buffer_index := decomp_output_buffer_index + 1;
+                      ii := ii + 1
+                   INVARIANT (1 = 1)
+                   VARIANT ll - ii
+                   END
+               END
+           END
+       END;
+   tt <-- decomp_ready = tt:= TRUE;
+   tt <-- decomp_error_status = tt := decomp_error_occurred;
+   bb <-- decomp_read_byte = bb := 0
+END
