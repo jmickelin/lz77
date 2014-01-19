@@ -8,8 +8,8 @@ SEES
     Strings
 
 VALUES
-    decomp_max_waiting = 4096
-
+    decomp_max_waiting = 256
+    
 CONCRETE_VARIABLES
     decomp_output_buffer,
     decomp_output_buffer_index,
