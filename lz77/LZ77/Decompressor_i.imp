@@ -94,7 +94,7 @@ OPERATIONS
                END
            END
        END;
-   tt <-- decomp_ready = tt:= TRUE;
+   tt <-- decomp_ready = tt := bool(decomp_output_buffer_read < decomp_output_buffer_end);
    tt <-- decomp_error_status = tt := decomp_error_occurred;
    bb <-- decomp_read_byte = 
        BEGIN
