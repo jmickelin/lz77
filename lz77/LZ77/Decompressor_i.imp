@@ -19,6 +19,9 @@ CONCRETE_VARIABLES
     decomp_window_wrapped,
     decomp_error_occurred
 
+DEFINITIONS
+    arrayToSeq(aa, ii, jj) == % nn . (nn : (1..(jj - ii) + 1) | aa(ii + nn - 1)) 
+
 INVARIANT
     decomp_output_buffer:      (1..decomp_max_waiting) --> 0..255 &
     decomp_output_buffer_end:   0..decomp_max_waiting &
@@ -71,7 +74,12 @@ OPERATIONS
                   decomp_window(decomp_window_index + ii - 1) := qq(ii);
                   decomp_window_index := (decomp_window_index + 1) mod max_pointer;
                   ii := ii + 1
-               INVARIANT (1 = 1)
+               INVARIANT
+                  ! jj . (jj : (1..ii) => decomp_output_buffer(jj) = qq(jj)) &
+                  
+                  arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) 
+                    ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
+                           (decomp_output ^ qq) \|/ (size(decomp_output ^ qq) - max_pointer)
                VARIANT qqlen - ii
                END
            END;
@@ -97,7 +105,14 @@ OPERATIONS
                       decomp_window(decomp_window_index + ii - 1) := 
                               decomp_window((decomp_window_index + ii - pp) mod max_pointer);
                       ii := ii + 1
-                   INVARIANT (1 = 1)
+                   INVARIANT                   
+                       ! jj . (jj : (1..ii) => 
+                           decomp_output_buffer(jj) = 
+                              (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))(jj)) &
+                  
+                       arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) 
+                         ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
+                              (decomp_output ^ (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))) \|/ (size(decomp_output) + ll - max_pointer)
                    VARIANT ll - ii
                    END
                END;
