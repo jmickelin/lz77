@@ -4,8 +4,7 @@
  */
 MACHINE Strings
 SETS TAGS = {Ref, Lit}
-CONSTANTS BYTE,
-          max_pointer,
+CONSTANTS max_pointer,
           max_runlength,
           max_quote_length
 
@@ -23,10 +22,8 @@ PROPERTIES max_pointer: NAT1 &
            /* max_pointer = 2 & 
               max_runlength = 2 & 
               max_quote_length = 2 & */ /* Give explicit values, for animation. */
-           BYTE = 0..255 &
-           /* BYTE = 0..1 & */ /* Limit number of possible characters, for animation. */
-           BYTE_STRINGS = seq(BYTE) &
-           QUOTES = {bs | bs: seq(BYTE) & size(bs) <= max_quote_length} &
+           BYTE_STRINGS = seq(0..255) &
+           QUOTES = {bs | bs: BYTE_STRINGS & size(bs) <= max_quote_length} &
            ATOM_UNIVERSE = struct(TAG:TAGS, 
                                   POINTER:NAT, 
                                   RUNLENGTH:NAT, 

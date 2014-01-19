@@ -30,7 +30,7 @@ OPERATIONS
             pp:  0..max_pointer &
             ll:  0..max_runlength &
             qqlen: 0..max_quote_length &
-            qq: 1..qqlen --> BYTE &
+            qq: 1..qqlen --> 0..255 &
             rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq): ATOMS &
             (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>) &

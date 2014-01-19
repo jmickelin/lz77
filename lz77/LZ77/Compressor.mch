@@ -33,7 +33,7 @@ OPERATIONS
     /* To find valid transitions, ProB requires a long timeout. */
     /* debug <-- */ /* Output the chosen suffix for animation */
     comp_put_byte(bb) = 
-       PRE bb:BYTE &
+       PRE bb:0..255 &
            comp_is_finishing = FALSE
        THEN
            comp_input := comp_input <- bb

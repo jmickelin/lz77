@@ -31,7 +31,7 @@ INITIALISATION dec_input := <>
                
 OPERATIONS
     dec_put_byte(bb) = 
-        PRE bb: BYTE &
+        PRE bb: 0..255 &
             dec_is_finishing = FALSE &
             dec_error_occurred = FALSE &
             size(dec_output) - dec_written_index = 0

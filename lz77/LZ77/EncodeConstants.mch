@@ -15,8 +15,8 @@ ABSTRACT_CONSTANTS lit_code,
           quote_length_nbytes,
           pointer_nbytes,
           runlength_nbytes
-PROPERTIES lit_code: BYTE &
-           ref_code: BYTE &
+PROPERTIES lit_code: 0..255 &
+           ref_code: 0..255 &
            lit_code = 0 &
            ref_code = 1 &
            quote_length_nbytes: NAT1 &
