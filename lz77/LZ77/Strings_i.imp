@@ -1,0 +1,10 @@
+IMPLEMENTATION
+   Strings_i
+REFINES
+   Strings
+
+VALUES
+    max_pointer = 256;
+    max_quote_length = 256;
+    max_runlength = 256
+END
