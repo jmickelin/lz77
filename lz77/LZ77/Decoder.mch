@@ -83,10 +83,12 @@ OPERATIONS
                 END;
    tt <-- dec_finishing = tt := dec_is_finishing;
    tt <-- dec_ready = tt := bool(dec_written_index < size(dec_output));
-   aa <-- dec_read_atom = 
+   tag,pp,ll,qq <-- dec_read_atom = 
        PRE dec_written_index < size(dec_output)
        THEN
-           aa := dec_output(dec_written_index + 1)
+           LET aa BE aa = dec_output(dec_written_index + 1)
+           IN tag,pp,ll,qq := aa'TAG,aa'POINTER,aa'RUNLENGTH,aa'QUOTE
+           END
            || dec_written_index := dec_written_index + 1
        END
 END
