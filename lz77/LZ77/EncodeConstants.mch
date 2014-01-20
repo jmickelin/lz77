@@ -4,6 +4,10 @@
  */
 MACHINE EncodeConstants
 SEES Strings
+CONCRETE_CONSTANTS
+          quote_length_nbytes,
+          pointer_nbytes,
+          runlength_nbytes
 ABSTRACT_CONSTANTS lit_code,
           ref_code,
           encode_quote_length,
@@ -11,10 +15,8 @@ ABSTRACT_CONSTANTS lit_code,
           encode_pointer,
           decode_pointer,
           encode_runlength,
-          decode_runlength,
-          quote_length_nbytes,
-          pointer_nbytes,
-          runlength_nbytes
+          decode_runlength
+          
 PROPERTIES lit_code: 0..255 &
            ref_code: 0..255 &
            lit_code = 0 &
