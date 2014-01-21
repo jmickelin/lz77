@@ -30,18 +30,18 @@ OPERATIONS
             pp:  0..max_pointer &
             ll:  0..max_runlength &
             qqlen: 0..max_quote_length &
-            qq: 1..qqlen --> 0..255 &
-            rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq): ATOMS &
+            qq: 0..max_quote_length --> 0..255 &
+            rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE_LEN:qqlen,QUOTE:qq): ATOMS &
             (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>) &
             size(enc_output) - enc_written_index = 0
         THEN
-            enc_input := enc_input <- rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq)
+            enc_input := enc_input <- rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE_LEN:qqlen,QUOTE:qq)
             || IF tag = Lit
                THEN ANY bs WHERE bs: BYTE_STRINGS &
                                  bs = encode_quote_length(size(qq))
                     THEN 
-                        enc_output := enc_output ^ [lit_code] ^ bs ^ qq
+                        enc_output := enc_output ^ [lit_code] ^ bs ^ ((1..qqlen)<|qq)
                     END
                ELSE ANY bs1,bs2 WHERE bs1: BYTE_STRINGS &
                                       bs2: BYTE_STRINGS &

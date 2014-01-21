@@ -39,12 +39,12 @@ OPERATIONS
             pp:  0..max_pointer &
             ll:  0..max_runlength &
             qqlen: 0..max_quote_length &
-            qq: 1..qqlen --> 0..255 &
-            rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq): ATOMS &
+            qq: 0..max_quote_length --> 0..255 &
+            rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE_LEN:qqlen, QUOTE:qq): ATOMS &
             (tag = Lit => pp = 0 & ll = 0) &
             (tag = Ref => pp /= 0  & ll /= 0 & qq = <>)
         THEN
-            LET aa,ms BE aa = rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE:qq) &
+            LET aa,ms BE aa = rec(TAG:tag,POINTER:pp,RUNLENGTH:ll,QUOTE_LEN:qqlen,QUOTE:qq) &
                          ms = decomp_atom(aa, decomp_output)
             IN
                 decomp_input := decomp_input <- aa

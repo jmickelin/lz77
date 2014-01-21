@@ -51,7 +51,8 @@ OPERATIONS
                           dec_output := dec_output <- rec(TAG:Ref,
                                                           POINTER: decode_pointer(pointer),
                                                           RUNLENGTH: decode_runlength(length),
-                                                          QUOTE: <>)
+                                                          QUOTE_LEN: 0,
+                                                          QUOTE: (0..max_quote_length)*{0})
                           || dec_decoded_index := size(dec_input<-bb)
                       END
                   END
@@ -63,10 +64,13 @@ OPERATIONS
                       IN
                           IF size(nondecoded) = 1 + quote_length_nbytes + quote_length
                           THEN
-                              dec_output := dec_output <- rec(TAG:Lit,
-                                                              POINTER: 0,
-                                                              RUNLENGTH: 0,
-                                                              QUOTE: partial_quote) /* Exactly the whole quote */
+                              // The partial_quote is exactly the whole quote.
+                              dec_output := dec_output <- 
+                                      rec(TAG:Lit,
+                                          POINTER: 0,
+                                          RUNLENGTH: 0,
+                                          QUOTE_LEN: quote_length,
+                                          QUOTE: ((partial_quote ^ (1..(max_quote_length - quote_length))*{0})<+{0|->0}))
                               || dec_decoded_index := size(dec_input<-bb)
                           END
                       END
@@ -83,11 +87,11 @@ OPERATIONS
                 END;
    tt <-- dec_finishing = tt := dec_is_finishing;
    tt <-- dec_ready = tt := bool(dec_written_index < size(dec_output));
-   tag,pp,ll,qq <-- dec_read_atom = 
+   tag,pp,ll,qqlen,qq <-- dec_read_atom = 
        PRE dec_written_index < size(dec_output)
        THEN
            LET aa BE aa = dec_output(dec_written_index + 1)
-           IN tag,pp,ll,qq := aa'TAG,aa'POINTER,aa'RUNLENGTH,aa'QUOTE
+           IN tag,pp,ll,qqlen,qq := aa'TAG,aa'POINTER,aa'RUNLENGTH,aa'QUOTE_LEN,aa'QUOTE
            END
            || dec_written_index := dec_written_index + 1
        END

@@ -64,11 +64,11 @@ OPERATIONS
           END;
     tt <-- comp_finishing = tt := comp_is_finishing;
     tt <-- comp_ready = tt := bool(comp_written_index < comp_ready_index);
-    tag,pp,ll,qq <-- comp_read_atom =
+    tag,pp,ll,qqlen,qq <-- comp_read_atom =
        PRE comp_written_index < comp_ready_index
        THEN
            LET aa BE aa = comp_output(comp_written_index + 1)
-           IN tag,pp,ll,qq := aa'TAG,aa'POINTER,aa'RUNLENGTH,aa'QUOTE
+           IN tag,pp,ll,qqlen,qq := aa'TAG,aa'POINTER,aa'RUNLENGTH,aa'QUOTE_LEN,aa'QUOTE
            END
            || comp_written_index := comp_written_index + 1
        END

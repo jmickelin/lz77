@@ -10,7 +10,7 @@ ABSTRACT_CONSTANTS decomp, decomp1, decomp_atom
 PROPERTIES
     decomp_atom : ATOMS * BYTE_STRINGS --> MAYBE_STRINGS &
     decomp_atom = % (aa,buf) . (aa: LITERALS & buf: BYTE_STRINGS |
-                                rec(RESULT: aa'QUOTE,
+                                rec(RESULT: (1..(aa'QUOTE_LEN))<|(aa'QUOTE),
                                     ERROR: FALSE))
                   <+
                   % (aa,buf) . (aa: REFERENCES & buf: BYTE_STRINGS & aa'POINTER <= size(buf) |

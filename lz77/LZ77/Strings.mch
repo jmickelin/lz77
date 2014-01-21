@@ -23,22 +23,24 @@ PROPERTIES max_pointer: NAT1 &
               max_runlength = 2 & 
               max_quote_length = 2 & */ /* Give explicit values, for animation. */
            BYTE_STRINGS = seq(0..255) &
-           QUOTES = {bs | bs: BYTE_STRINGS & size(bs) <= max_quote_length} &
+           QUOTES = 0..max_quote_length --> 0..255 & // We ignore the first byte, so this is an array of max_quote_length bytes.
            ATOM_UNIVERSE = struct(TAG:TAGS, 
-                                  POINTER:NAT, 
-                                  RUNLENGTH:NAT, 
+                                  POINTER:NAT,
+                                  RUNLENGTH:NAT,
+                                  QUOTE_LEN:0..max_quote_length,
                                   QUOTE: QUOTES) &
            REFERENCES = { aa | aa:ATOM_UNIVERSE &
                                aa'TAG = Ref &
                                aa'POINTER: (1..max_pointer) & 
                                aa'RUNLENGTH: (1..max_runlength) &
-                               aa'QUOTE = <>
+                               aa'QUOTE_LEN = 0 &
+                               aa'QUOTE = (0..max_quote_length) * {0}
                         } &
            LITERALS = { aa | aa:ATOM_UNIVERSE &
                              aa'TAG = Lit &
                              aa'POINTER = 0 & 
                              aa'RUNLENGTH = 0 &
-                             aa'QUOTE /= <>
+                             aa'QUOTE_LEN > 0
                       } &
            ATOMS = REFERENCES \/ LITERALS &
            ABSTRACT_STRINGS = seq(ATOMS) &
