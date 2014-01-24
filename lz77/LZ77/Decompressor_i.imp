@@ -23,28 +23,31 @@ DEFINITIONS
     arrayToSeq(aa, ii, jj) == % nn . (nn : (1..(jj - ii) + 1) | aa(ii + nn - 1)) 
 
 INVARIANT
-    decomp_output_buffer:      (1..decomp_max_waiting) --> 0..255 &
+    decomp_output_buffer:      (0..decomp_max_waiting) --> 0..255 &
     decomp_output_buffer_end:   0..decomp_max_waiting &
     decomp_output_buffer_read:  0..decomp_max_waiting &
-    decomp_window:             (0..max_pointer - 1) --> 0..255 &
-    decomp_window_index:        0..(max_pointer - 1) &
+    decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
+    decomp_window_index:        0..255 &
     decomp_window_wrapped:     BOOL &
 
-/*    decomp_output_buffer \|/ decomp_output_buffer_end = 
-        % ii . (ii : dom(decomp_output_buffer \|/ decomp_output_buffer_end) | 
-                  (decomp_output \|/ decomp_written_index)(ii + 1)) &
-*/
-    ! ii . (ii : (1..decomp_output_buffer_end) =>
-        decomp_output_buffer(ii) = decomp_output(size(decomp_output) - decomp_output_buffer_end + ii)) &
+    (decomp_window_wrapped = TRUE <=> size(decomp_output) >= max_pointer) &
 
-    /* The beginning (most previously written part) of the window should always be equal to the end of decomp_output */
-    ! ii . (ii : (0..decomp_window_index - 1) => 
-        decomp_window(ii) = decomp_output((size(decomp_output) - decomp_window_index + 1) + ii)) &
-    /* If the window has wrapped, the end of the window should be equal to what comes before that */
+    (1..decomp_output_buffer_end) <| decomp_output_buffer = 
+            (size(decomp_output) - (decomp_output_buffer_end - 1)..size(decomp_output)) <| decomp_output & 
+
+    size(decomp_output) - decomp_written_index = decomp_output_buffer_end - decomp_output_buffer_read &
+
+    decomp_output_buffer_read <= decomp_output_buffer_end &
+
+    // The beginning (most previously written part) of the window should always be equal to the end of decomp_output
+    arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
+            ((size(decomp_output) - (decomp_window_index - 1))..size(decomp_output)) <| decomp_output & 
+
+    // If the window has wrapped, the end of the window should be equal to what comes before that
     (decomp_window_wrapped = TRUE => 
-         ! ii . (ii : (decomp_window_index..max_pointer - 1) =>
-             decomp_window(ii) = decomp_output((size(decomp_output) - max_pointer + 1) + ii - decomp_window_index)))
-    
+        arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) =
+                ((size(decomp_output) - (max_pointer - 1))..(size(decomp_output) - decomp_window_index)) <| decomp_output) 
+
 INITIALISATION
     decomp_output_buffer := (1..decomp_max_waiting) * {0};
     decomp_output_buffer_end := 0;
