@@ -49,10 +49,10 @@ INVARIANT
                 ((size(decomp_output) - (max_pointer - 1))..(size(decomp_output) - decomp_window_index)) <| decomp_output) 
 
 INITIALISATION
-    decomp_output_buffer := (1..decomp_max_waiting) * {0};
+    decomp_output_buffer := (0..decomp_max_waiting) * {0};
     decomp_output_buffer_end := 0;
     decomp_output_buffer_read := 0;
-    decomp_window := (0..max_pointer - 1) * {0};
+    decomp_window := (0..255) * {0}; // (0..max_pointer - 1) * {0}
     decomp_window_index := 0;
     decomp_error_occurred := FALSE;
     decomp_window_wrapped := FALSE
