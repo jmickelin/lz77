@@ -77,11 +77,27 @@ OPERATIONS
                   decomp_window(decomp_window_index + ii - 1) := qq(ii);
                   ii := ii + 1
                INVARIANT
-                  ! jj . (jj : (1..ii) => decomp_output_buffer(jj) = qq(jj)) &
+                   ii: NAT &
+                   decomp_output_buffer:      (0..decomp_max_waiting) --> 0..255 &
+                   decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
+
+                   (1..ii) <| decomp_output_buffer = (1..ii) <| qq
+
+    // The beginning (most previously written part) of the window should always be equal to the end of decomp_output
+ /*   arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
+            ((size(decomp_output) - (decomp_window_index - 1))..size(decomp_output)) <| decomp_output & 
+*/
+    // If the window has wrapped, the end of the window should be equal to what comes before that
+/*    (decomp_window_wrapped = TRUE => 
+        arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) =
+                ((size(decomp_output) - (max_pointer - 1))..(size(decomp_output) - decomp_window_index)) <| decomp_output) &
+
+
                   
                   arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) 
                     ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
                            (decomp_output ^ qq) \|/ (size(decomp_output ^ qq) - max_pointer)
+                           */
                VARIANT qqlen - ii
                END
            END;
@@ -108,8 +124,11 @@ OPERATIONS
                       decomp_window(decomp_window_index + ii - 1) := 
                               decomp_window((decomp_window_index + ii - pp) mod max_pointer);
                       ii := ii + 1
-                   INVARIANT                   
-                       ! jj . (jj : (1..ii) => 
+                   INVARIANT
+                       ii: NAT &
+                       decomp_output_buffer: (0..decomp_max_waiting) --> 0..255 &
+                       decomp_window: (0..255) --> 0..255 &
+                       ! jj . (jj : (1..ii-1) => 
                            decomp_output_buffer(jj) = 
                               (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))(jj)) &
                   
