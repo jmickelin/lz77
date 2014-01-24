@@ -75,7 +75,6 @@ OPERATIONS
                WHILE ii <= qqlen
                DO decomp_output_buffer(ii) := qq(ii);
                   decomp_window(decomp_window_index + ii - 1) := qq(ii);
-                  decomp_window_index := (decomp_window_index + 1) mod max_pointer;
                   ii := ii + 1
                INVARIANT
                   ! jj . (jj : (1..ii) => decomp_output_buffer(jj) = qq(jj)) &
@@ -86,6 +85,7 @@ OPERATIONS
                VARIANT qqlen - ii
                END
            END;
+           decomp_window_index := (decomp_window_index + qqlen) mod max_pointer;
            decomp_output_buffer_end := qqlen
 
         ELSE /* tag = Ref */
