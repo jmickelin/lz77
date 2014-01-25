@@ -32,8 +32,8 @@ INVARIANT
 
     (decomp_window_wrapped = TRUE <=> size(decomp_output) >= max_pointer) &
 
-    (1..decomp_output_buffer_end) <| decomp_output_buffer = 
-            (size(decomp_output) - (decomp_output_buffer_end - 1)..size(decomp_output)) <| decomp_output & 
+    ((1..decomp_max_waiting) <| decomp_output_buffer) /|\ decomp_output_buffer_end = 
+            decomp_output \|/ (size(decomp_output) - decomp_output_buffer_end) &
 
     size(decomp_output) - decomp_written_index = decomp_output_buffer_end - decomp_output_buffer_read &
 
@@ -41,12 +41,12 @@ INVARIANT
 
     // The beginning (most previously written part) of the window should always be equal to the end of decomp_output
     arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
-            ((size(decomp_output) - (decomp_window_index - 1))..size(decomp_output)) <| decomp_output & 
+            decomp_output \|/ (size(decomp_output) - decomp_window_index) &
 
     // If the window has wrapped, the end of the window should be equal to what comes before that
     (decomp_window_wrapped = TRUE => 
         arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) =
-                ((size(decomp_output) - (max_pointer - 1))..(size(decomp_output) - decomp_window_index)) <| decomp_output) 
+                (decomp_output \|/ (size(decomp_output) - max_pointer)) /|\ (max_pointer - decomp_window_index))
 
 INITIALISATION
     decomp_output_buffer := (0..decomp_max_waiting) * {0};
