@@ -20,7 +20,7 @@ CONCRETE_VARIABLES
     decomp_error_occurred
 
 DEFINITIONS
-    arrayToSeq(aa, ii, jj) == % nn . (nn : (1..(jj - ii) + 1) | aa(ii + nn - 1)) 
+    arrayToSeq(aa, ii, jj) == % nn . (nn : (1..((jj) - (ii)) + 1) | (aa)((ii) + nn - 1)) 
 
 INVARIANT
     decomp_output_buffer:      (0..decomp_max_waiting) --> 0..255 &
