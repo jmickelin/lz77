@@ -74,7 +74,7 @@ OPERATIONS
                
                WHILE ii <= qqlen
                DO decomp_output_buffer(ii) := qq(ii);
-                  decomp_window(decomp_window_index + ii - 1) := qq(ii);
+                  decomp_window((decomp_window_index + ii - 1) mod max_pointer) := qq(ii);
                   ii := ii + 1
                INVARIANT
                    ii: NAT &
