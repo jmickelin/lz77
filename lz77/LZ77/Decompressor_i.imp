@@ -72,7 +72,7 @@ OPERATIONS
                    ii <= qqlen + 1 &
                    decomp_output_buffer:      (0..decomp_max_waiting) --> 0..255 &
                    decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
-                   decomp_window_index:       NAT &
+                   decomp_window_index:       0..255 &
                    decomp_window_remaining:   0..256 &  // 0..max_pointer
                    
                    ((1..decomp_max_waiting) <| decomp_output_buffer)/|\(ii-1) = (1..ii-1) <| qq &
@@ -115,7 +115,7 @@ OPERATIONS
                        ii <= ll + 1 &
                        decomp_output_buffer: (0..decomp_max_waiting) --> 0..255 &
                        decomp_window: (0..255) --> 0..255 &
-                       decomp_window_index:       NAT &
+                       decomp_window_index:       0..255 &
                        decomp_window_remaining:   0..256 & // 0..max_pointer
 
                        ((1..decomp_max_waiting) <| decomp_output_buffer)/|\(ii-1) = 
