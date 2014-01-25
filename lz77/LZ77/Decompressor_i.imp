@@ -98,7 +98,7 @@ OPERATIONS
                     ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
                            (decomp_output ^ qq) \|/ (size(decomp_output ^ qq) - max_pointer)
                            */
-               VARIANT qqlen - ii
+               VARIANT qqlen + 1 - ii
                END
            END;
            decomp_window_index := (decomp_window_index + qqlen) mod max_pointer;
@@ -135,7 +135,7 @@ OPERATIONS
                        arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) 
                          ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
                               (decomp_output ^ (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))) \|/ (size(decomp_output) + ll - max_pointer)
-                   VARIANT ll - ii
+                   VARIANT ll + 1 - ii
                    END
                END;
                decomp_window_index := (decomp_window_index + ll) mod max_pointer;
