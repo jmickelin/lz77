@@ -104,9 +104,9 @@ OPERATIONS
                    ii := 1;
                    
                    WHILE ii <= ll
-                   DO decomp_output_buffer(ii) := decomp_window((decomp_window_index + ii - pp) mod max_pointer);
-                      decomp_window(decomp_window_index + ii - 1) := 
-                              decomp_window((decomp_window_index + ii - pp) mod max_pointer);
+                   DO decomp_output_buffer(ii) := decomp_window((decomp_window_index + (ii - 1) - pp) mod 256);
+                      decomp_window((decomp_window_index + ii - 1) mod 256) := 
+                              decomp_window((decomp_window_index + (ii - 1) - pp) mod 256);
                       IF decomp_window_remaining /= 0 THEN
                           decomp_window_remaining := decomp_window_remaining - 1
                       END;
