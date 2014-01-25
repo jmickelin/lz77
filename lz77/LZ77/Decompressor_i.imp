@@ -16,7 +16,7 @@ CONCRETE_VARIABLES
     decomp_output_buffer_end,
     decomp_window,
     decomp_window_index,
-    decomp_window_wrapped,
+    decomp_window_remaining,
     decomp_error_occurred
 
 DEFINITIONS
@@ -28,9 +28,9 @@ INVARIANT
     decomp_output_buffer_read:  0..decomp_max_waiting &
     decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
     decomp_window_index:        0..255 &
-    decomp_window_wrapped:     BOOL &
+    decomp_window_remaining:    0..256 & // (0..max_pointer)
 
-    (decomp_window_wrapped = TRUE <=> size(decomp_output) >= max_pointer) &
+    (decomp_window_remaining = 0 <=> size(decomp_output) >= max_pointer) &
 
     ((1..decomp_max_waiting) <| decomp_output_buffer) /|\ decomp_output_buffer_end = 
             decomp_output \|/ (size(decomp_output) - decomp_output_buffer_end) &
@@ -39,14 +39,9 @@ INVARIANT
 
     decomp_output_buffer_read <= decomp_output_buffer_end &
 
-    // The beginning (most previously written part) of the window should always be equal to the end of decomp_output
-    arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
-            decomp_output \|/ (size(decomp_output) - decomp_window_index) &
-
-    // If the window has wrapped, the end of the window should be equal to what comes before that
-    (decomp_window_wrapped = TRUE => 
-        arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) =
-                (decomp_output \|/ (size(decomp_output) - max_pointer)) /|\ (max_pointer - decomp_window_index))
+    arrayToSeq(decomp_window, decomp_window_index + decomp_window_remaining, 256 - 1) ^
+        arrayToSeq(decomp_window, 0, decomp_window_index - 1) =
+                decomp_output \|/ (size(decomp_output) + 1 - (256 - decomp_window_remaining))
 
 INITIALISATION
     decomp_output_buffer := (0..decomp_max_waiting) * {0};
@@ -55,7 +50,7 @@ INITIALISATION
     decomp_window := (0..255) * {0}; // (0..max_pointer - 1) * {0}
     decomp_window_index := 0;
     decomp_error_occurred := FALSE;
-    decomp_window_wrapped := FALSE
+    decomp_window_remaining := 256   // max_pointer
 
 OPERATIONS
     decomp_put_atom(tag, pp, ll, qqlen, qq) = BEGIN
@@ -63,18 +58,15 @@ OPERATIONS
     
        IF (tag = Lit)
        THEN
-           VAR xx IN
-               xx := decomp_window_index + qqlen;
-               decomp_window_wrapped := bool((xx >= max_pointer) 
-                                             or decomp_window_wrapped = TRUE)
-           END;
-               
            VAR ii IN
                ii := 1;
                
                WHILE ii <= qqlen
                DO decomp_output_buffer(ii) := qq(ii);
                   decomp_window((decomp_window_index + ii - 1) mod max_pointer) := qq(ii);
+                  IF decomp_window_remaining /= 0 THEN
+                      decomp_window_remaining := decomp_window_remaining - 1
+                  END;
                   ii := ii + 1
                INVARIANT
                    ii: NAT &
@@ -83,24 +75,19 @@ OPERATIONS
                    decomp_output_buffer:      (0..decomp_max_waiting) --> 0..255 &
                    decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
                    decomp_window_index:       NAT &
+                   decomp_window_remaining:   0..256 &  // 0..max_pointer
+                   
                    ((1..decomp_max_waiting) <| decomp_output_buffer)/|\(ii-1) = (1..ii-1) <| qq &
-
-
-    // The beginning (most previously written part) of the window should always be equal to the end of decomp_output
- /*   arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
-            ((size(decomp_output) - (decomp_window_index - 1))..size(decomp_output)) <| decomp_output & 
-*/
-    // If the window has wrapped, the end of the window should be equal to what comes before that
-/*    (decomp_window_wrapped = TRUE => 
-        arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) =
-                ((size(decomp_output) - (max_pointer - 1))..(size(decomp_output) - decomp_window_index)) <| decomp_output) &
-
-
-                  
-                  arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) 
-                    ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
-                           (decomp_output ^ qq) \|/ (size(decomp_output ^ qq) - max_pointer)
-                           */
+                   
+                   arrayToSeq(decomp_window,
+                              ((decomp_window_index + (ii - 1)) mod 256) + decomp_window_remaining, // mod max_pointer
+                              256 - 1) // max_pointer - 1
+                   ^ arrayToSeq(decomp_window, 
+                                0, 
+                                (decomp_window_index - 1 + (ii - 1)) mod 256)  // mod max_pointer
+                   = (decomp_output 
+                           ^ (qq /|\ (ii-1)))
+                           \|/ (size(decomp_output) + 1 - (256 - decomp_window_remaining)) // max_pointer - decomp-window_remaining
                VARIANT qqlen + 1 - ii
                END
            END;
@@ -108,17 +95,11 @@ OPERATIONS
            decomp_output_buffer_end := qqlen
 
         ELSE /* tag = Ref */
-           IF decomp_window_wrapped = FALSE & decomp_window_index < pp
+           IF decomp_window_remaining /= 0 & decomp_window_index < pp
            THEN
               /* Invalid reference */
               decomp_error_occurred := TRUE
            ELSE
-               VAR xx IN
-                   xx := decomp_window_index + ll;
-                   decomp_window_wrapped := bool((xx >= max_pointer) 
-                                                 or decomp_window_wrapped = TRUE)
-               END;
-               
                VAR ii IN
                    ii := 1;
                    
@@ -126,20 +107,31 @@ OPERATIONS
                    DO decomp_output_buffer(ii) := decomp_window((decomp_window_index + ii - pp) mod max_pointer);
                       decomp_window(decomp_window_index + ii - 1) := 
                               decomp_window((decomp_window_index + ii - pp) mod max_pointer);
+                      IF decomp_window_remaining /= 0 THEN
+                          decomp_window_remaining := decomp_window_remaining - 1
+                      END;
                       ii := ii + 1
                    INVARIANT
                        ii: NAT &
                        1 <= ii &
                        ii <= ll + 1 &
                        decomp_output_buffer: (0..decomp_max_waiting) --> 0..255 &
-                       decomp_window: (0..255) --> 0..255 /*
-                       ! jj . (jj : (1..ii-1) => 
-                           decomp_output_buffer(jj) = 
-                              (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))(jj)) &
-                  
-                       arrayToSeq(decomp_window, decomp_window_index, max_pointer - 1) 
-                         ^ arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
-                              (decomp_output ^ (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))) \|/ (size(decomp_output) + ll - max_pointer)
+                       decomp_window: (0..255) --> 0..255 &
+                       decomp_window_index:       NAT &
+                       decomp_window_remaining:   0..256 & // 0..max_pointer
+
+                       ((1..decomp_max_waiting) <| decomp_output_buffer)/|\(ii-1) = 
+                               (1..ii-1) <| (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp)))) &
+
+                       arrayToSeq(decomp_window,
+                                  ((decomp_window_index + (ii - 1)) mod 256) + decomp_window_remaining, // mod max_pointer
+                                  256 - 1) // max_pointer - 1
+                       ^ arrayToSeq(decomp_window, 
+                                    0, 
+                                    (decomp_window_index - 1 + (ii - 1)) mod 256)  // mod max_pointer
+                       = (decomp_output 
+                               ^ ((%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp)))) /|\ (ii-1)))
+                               \|/ (size(decomp_output) + 1 - (256 - decomp_window_remaining)) // max_pointer - decomp-window_remaining
                    VARIANT ll + 1 - ii
                    END
                END;
