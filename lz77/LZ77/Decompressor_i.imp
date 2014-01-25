@@ -27,7 +27,7 @@ INVARIANT
     decomp_output_buffer_end:   0..decomp_max_waiting &
     decomp_output_buffer_read:  0..decomp_max_waiting &
     decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
-    decomp_window_index:        0..255 &
+    decomp_window_index:        0..255 & // (0..max_pointer - 1)
     decomp_window_remaining:    0..256 & // (0..max_pointer)
 
     (decomp_window_remaining = 0 <=> size(decomp_output) >= max_pointer) &
@@ -63,7 +63,7 @@ OPERATIONS
                
                WHILE ii <= qqlen
                DO decomp_output_buffer(ii) := qq(ii);
-                  decomp_window((decomp_window_index + ii - 1) mod max_pointer) := qq(ii);
+                  decomp_window((decomp_window_index + ii - 1) mod 256) := qq(ii); // mod max_pointer
                   IF decomp_window_remaining /= 0 THEN
                       decomp_window_remaining := decomp_window_remaining - 1
                   END;
@@ -91,7 +91,7 @@ OPERATIONS
                VARIANT qqlen + 1 - ii
                END
            END;
-           decomp_window_index := (decomp_window_index + qqlen) mod max_pointer;
+           decomp_window_index := (decomp_window_index + qqlen) mod 256; // mod max_pointer
            decomp_output_buffer_end := qqlen
 
         ELSE /* tag = Ref */
@@ -135,7 +135,7 @@ OPERATIONS
                    VARIANT ll + 1 - ii
                    END
                END;
-               decomp_window_index := (decomp_window_index + ll) mod max_pointer;
+               decomp_window_index := (decomp_window_index + ll) mod 256;
                decomp_output_buffer_end := ll
            END
        END
