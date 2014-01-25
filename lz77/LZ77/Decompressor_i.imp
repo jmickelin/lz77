@@ -78,10 +78,13 @@ OPERATIONS
                   ii := ii + 1
                INVARIANT
                    ii: NAT &
+                   1 <= ii &
+                   ii <= qqlen + 1 &
                    decomp_output_buffer:      (0..decomp_max_waiting) --> 0..255 &
                    decomp_window:             (0..255) --> 0..255 & // (0..max_pointer - 1) --> 0..255
+                   decomp_window_index:       NAT &
+                   ((1..decomp_max_waiting) <| decomp_output_buffer)/|\(ii-1) = (1..ii-1) <| qq &
 
-                   (1..ii) <| decomp_output_buffer = (1..ii) <| qq
 
     // The beginning (most previously written part) of the window should always be equal to the end of decomp_output
  /*   arrayToSeq(decomp_window, 0, decomp_window_index - 1) = 
@@ -126,8 +129,10 @@ OPERATIONS
                       ii := ii + 1
                    INVARIANT
                        ii: NAT &
+                       1 <= ii &
+                       ii <= ll + 1 &
                        decomp_output_buffer: (0..decomp_max_waiting) --> 0..255 &
-                       decomp_window: (0..255) --> 0..255 &
+                       decomp_window: (0..255) --> 0..255 /*
                        ! jj . (jj : (1..ii-1) => 
                            decomp_output_buffer(jj) = 
                               (%nn . (nn : 1..ll | decomp_output(size(decomp_output) + 1 - pp + ((nn - 1) mod pp))))(jj)) &
