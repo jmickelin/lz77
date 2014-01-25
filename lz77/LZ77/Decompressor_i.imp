@@ -53,9 +53,7 @@ INITIALISATION
     decomp_window_remaining := 256   // max_pointer
 
 OPERATIONS
-    decomp_put_atom(tag, pp, ll, qqlen, qq) = BEGIN
-       decomp_output_buffer_read := 0;
-    
+    decomp_put_atom(tag, pp, ll, qqlen, qq) = BEGIN    
        IF (tag = Lit)
        THEN
            VAR ii IN
@@ -138,7 +136,8 @@ OPERATIONS
                decomp_window_index := (decomp_window_index + ll) mod 256;
                decomp_output_buffer_end := ll
            END
-       END
+       END;
+       decomp_output_buffer_read := 0
    END;
    tt <-- decomp_ready = tt := bool(decomp_output_buffer_read < decomp_output_buffer_end);
    tt <-- decomp_error_status = tt := decomp_error_occurred;
