@@ -30,6 +30,8 @@ INVARIANT
     decomp_window_index:        0..255 & // (0..max_pointer - 1)
     decomp_window_remaining:    0..256 & // (0..max_pointer)
 
+    (not(decomp_window_remaining = 0) <=> (decomp_window_remaining = 256 - decomp_window_index)) & // max_pointer - 1
+
     (decomp_window_remaining = 0 <=> size(decomp_output) >= max_pointer) &
 
     ((1..decomp_max_waiting) <| decomp_output_buffer) /|\ decomp_output_buffer_end = 
